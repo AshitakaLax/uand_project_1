@@ -20,7 +20,7 @@
         android:id="@+id/movie_grid"
         android:numColumns="3"
         android:gravity="center"
-        android:columnWidth="@dimen/item_width"
+        android:stretchMode="columnWidth"
         android:layout_width="@dimen/total_column_width"
         android:layout_height="fill_parent"
         tools:context=".movieGridActivity"

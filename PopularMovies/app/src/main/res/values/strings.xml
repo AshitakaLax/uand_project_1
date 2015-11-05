@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Popular Movies</string>
     <string name="action_settings">Settings</string>
+    <string name="sort_menu_option">Sort by:</string>
+    <string name="sort_by_popularity_option">   Popularity</string>
+    <string name="sort_by_rating_option">   Rating</string>
     <string name="title_movie_detail">movie Detail</string>
 </resources>

@@ -2,21 +2,36 @@ package ashitakalax.com.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import ashitakalax.com.popularmovies.movie.MovieItem;
 
 /**
  * An activity representing a single movie detail screen. This
  * activity is only used narrow width devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
- * in a {@link MovieListActivity}.
+ * in a {@link MovieGridActivity}.
  */
 public class MovieDetailActivity extends AppCompatActivity {
+
+
+    public static final String ARG_BUNDLE_ID = "movie_bundle";
+
+    public static final String ARG_MOVIE_ID = "movie_id";
+    public static final String ARG_MOVIE_TITLE = "movie_title";
+    public static final String ARG_MOVIE_OVERVIEW = "movie_overview";
+    public static final String ARG_MOVIE_RATING = "movie_vote_average";
+    public static final String ARG_MOVIE_RELEASE_DATE = "movie_release_date";
+    public static final String ARG_MOVIE_POSTER_URL = "movie_poster_path";
+
+    private MovieItem mItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +39,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
-
-
 
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
@@ -46,8 +59,18 @@ public class MovieDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(MovieDetailFragment.ARG_MOVIE_ID,
-                    getIntent().getStringExtra(MovieDetailFragment.ARG_MOVIE_ID));
+
+
+            arguments.putInt(MovieDetailActivity.ARG_MOVIE_ID, getIntent().getIntExtra(MovieDetailActivity.ARG_MOVIE_ID, 0));
+            arguments.putString(MovieDetailActivity.ARG_MOVIE_TITLE, getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_TITLE));
+            arguments.putString(MovieDetailActivity.ARG_MOVIE_OVERVIEW,  getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_OVERVIEW));
+            arguments.putString(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE,  getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE));
+            arguments.putString(MovieDetailActivity.ARG_MOVIE_POSTER_URL, getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_POSTER_URL));
+            arguments.putDouble(MovieDetailActivity.ARG_MOVIE_RATING, getIntent().getDoubleExtra(MovieDetailActivity.ARG_MOVIE_RATING, 0.0));
+
+
+
+
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -66,7 +89,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            navigateUpTo(new Intent(this, MovieListActivity.class));
+            navigateUpTo(new Intent(this, MovieGridActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,9 +1,116 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/movie_detail"
-    style="?android:attr/textAppearanceLarge"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:textIsSelectable="true"
-    tools:context=".MovieDetailFragment" />
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="vertical"
+    android:showDividers="middle"
+    tools:context=".MovieDetailActivity"
+    android:weightSum="1">
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Large Text"
+                android:id="@+id/titleTextView"
+                android:textColor="@android:color/white"
+                android:background="#009688"
+                android:paddingLeft="@dimen/abc_dialog_padding_material"
+                android:paddingTop="@dimen/abc_dialog_padding_material"
+                android:paddingBottom="@dimen/abc_dialog_padding_material"
+                android:textSize="@dimen/abc_text_size_large_material" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="@dimen/item_width"
+                    android:layout_height="@dimen/item_height"
+                    android:id="@+id/moviePosterImageView" />
+
+                <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/releaseDateTextView"
+                    style="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:textIsSelectable="true"
+                    android:layout_weight="0.24"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/moviePosterImageView"
+                    android:layout_marginLeft="23dp"
+                    android:layout_marginStart="23dp"
+                    android:text="date" />
+
+                <TextView
+                    style="?android:attr/textAppearanceLarge"
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/movieTimeLengthTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:textIsSelectable="true"
+                    android:layout_weight="0.24"
+                    android:layout_below="@+id/releaseDateTextView"
+                    android:layout_alignLeft="@+id/releaseDateTextView"
+                    android:layout_alignStart="@+id/releaseDateTextView"
+                    android:text="Time min" />
+
+                <TextView
+                    style="?android:attr/textAppearanceLarge"
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    xmlns:tools="http://schemas.android.com/tools"
+                    android:id="@+id/movieRatingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:textIsSelectable="true"
+                    android:layout_weight="0.24"
+                    android:layout_below="@+id/movieTimeLengthTextView"
+                    android:layout_alignLeft="@+id/movieTimeLengthTextView"
+                    android:layout_alignStart="@+id/movieTimeLengthTextView"
+                    android:text="rating/10" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="movie overview"
+                    android:id="@+id/movieOverviewTextView" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>
+
+
+
+

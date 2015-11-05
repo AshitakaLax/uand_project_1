@@ -5,6 +5,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">200dp</dimen>
     <dimen name="item_width">185dp</dimen>
+    <dimen name="item_height">277dp</dimen>
     <dimen name="total_column_width">555dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 </resources>

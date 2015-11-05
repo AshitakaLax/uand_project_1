@@ -1,8 +1,6 @@
 package ashitakalax.com.popularmovies.movie;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +11,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import ashitakalax.com.popularmovies.MovieDetailActivity;
-import ashitakalax.com.popularmovies.MovieDetailFragment;
 import ashitakalax.com.popularmovies.R;
 
 /**
@@ -26,12 +22,9 @@ import ashitakalax.com.popularmovies.R;
  */
 public class MovieArrayAdapter extends ArrayAdapter<MovieItem> {
 
-    private View.OnClickListener mImageOnClickListener;
-
-    public MovieArrayAdapter(Context context, int resource, List<MovieItem> objects, View.OnClickListener listener) {
+    public MovieArrayAdapter(Context context, int resource, List<MovieItem> objects) {
         super(context, resource, objects);
         //set the twoPane variable from parameter
-        this.mImageOnClickListener = listener;
     }
 
     @Override
@@ -47,10 +40,9 @@ public class MovieArrayAdapter extends ArrayAdapter<MovieItem> {
 
         //todo change the url to be from the movie Item
 
-        String imageUrl = "http://image.tmdb.org/t/p/w185" + item.getmImageUrl();
+        String imageUrl = "http://image.tmdb.org/t/p/w185" + item.getImageUrl();
         Picasso.with(getContext()).load(imageUrl).into(movieImageView);
-
-        movieImageView.setOnClickListener(this.mImageOnClickListener);
+        convertView.setTag(item);
 
         return convertView;
     }

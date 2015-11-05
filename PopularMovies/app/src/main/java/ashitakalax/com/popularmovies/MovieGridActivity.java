@@ -5,18 +5,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
+import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.TextView;
 
 import org.json.JSONException;
 
@@ -29,7 +26,6 @@ import java.net.URL;
 import java.util.List;
 
 import ashitakalax.com.popularmovies.movie.MovieArrayAdapter;
-import ashitakalax.com.popularmovies.movie.MovieContent;
 import ashitakalax.com.popularmovies.movie.MovieItem;
 
 
@@ -41,7 +37,10 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class MovieGridActivity extends AppCompatActivity implements View.OnClickListener {
+public class MovieGridActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+
+    private final String SORT_BY_POPULARITY = "sort_by_popularity";
+    private final String SORT_BY_RATING = "sort_by_rating";
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -66,10 +65,10 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
         mGridView.setNumColumns(3);
         //todo change from TwoPane
-        mTwoPane = true;
+        mTwoPane = false;
 
         //here we want to do a json query to get the list of movies
-        new downloadMovieList().execute("");
+        new downloadMovieList().execute(SORT_BY_POPULARITY);
         //setupArrayAdapter(gridView);
 
         if (findViewById(R.id.movie_detail_container) != null) {
@@ -78,28 +77,114 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             // If this view is present, then the
             // activity should be in two-pane mode.
             mTwoPane = true;
+        }else {
+            mTwoPane = false;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main_grid, menu);
+        return true;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_popularity:
+                //send request for the
+                new downloadMovieList().execute(SORT_BY_POPULARITY);
+                return true;
+            case R.id.sort_highest_rated:
+                new downloadMovieList().execute(SORT_BY_RATING);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
     private void setupArrayAdapter(String jsonReply) {
+        //todo reuse list, and adapter instead of overwriting it for speed.
         List<MovieItem> movieItemList = null;
         try {
-            movieItemList = MovieContent.getMoviesFromJson(jsonReply);
+            movieItemList = MovieItem.getMoviesFromJson(jsonReply);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        mGridView.setOnItemClickListener(this);
+        mGridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), R.id.movie_grid, movieItemList));
+        //load the first on the list to make sure that there is something on the display
+        if (mTwoPane && movieItemList.size() != 0) {
+            Bundle arguments = new Bundle();
+            arguments.putInt(MovieDetailFragment.ARG_MOVIE_ID, movieItemList.get(0).getId());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_TITLE, movieItemList.get(0).getOriginalTitle());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_OVERVIEW, movieItemList.get(0).getPlotSynopsis());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_RELEASE_DATE, movieItemList.get(0).getReleaseDate());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_POSTER_URL, movieItemList.get(0).getImageUrl());
+            arguments.putDouble(MovieDetailFragment.ARG_MOVIE_RATING, movieItemList.get(0).getUserRating());
 
-        mGridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), R.id.movie_grid, movieItemList, this));
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment)
+                    .commit();
+        }else {
+
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        MovieItem item = (MovieItem)view.getTag();
+        if (mTwoPane) {
+            Bundle arguments = new Bundle();
+            arguments.putInt(MovieDetailFragment.ARG_MOVIE_ID, item.getId());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_TITLE, item.getOriginalTitle());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_OVERVIEW, item.getPlotSynopsis());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_RELEASE_DATE, item.getReleaseDate());
+            arguments.putString(MovieDetailFragment.ARG_MOVIE_POSTER_URL, item.getImageUrl());
+            arguments.putDouble(MovieDetailFragment.ARG_MOVIE_RATING, item.getUserRating());
+
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment)
+                    .commit();
+        } else {
 
 
-        //gridView.setAdapter(new SimpleItemRecyclerViewAdapter(MovieContent.ITEMS));
+
+//            Bundle arguments = new Bundle();
+//
+//            arguments.putInt(MovieDetailActivity.ARG_MOVIE_ID, item.getId());
+//            arguments.putString(MovieDetailActivity.ARG_MOVIE_TITLE, item.getOriginalTitle());
+//            arguments.putString(MovieDetailActivity.ARG_MOVIE_OVERVIEW, item.getPlotSynopsis());
+//            arguments.putString(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE, item.getReleaseDate());
+//            arguments.putString(MovieDetailActivity.ARG_MOVIE_POSTER_URL, item.getImageUrl());
+//            arguments.putDouble(MovieDetailActivity.ARG_MOVIE_RATING, item.getUserRating());
+
+            Context context = view.getContext();
+            Intent intent = new Intent(context, MovieDetailActivity.class);
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_ID, item.getId());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_ID, item.getId());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_TITLE, item.getOriginalTitle());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_OVERVIEW, item.getPlotSynopsis());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE, item.getReleaseDate());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_POSTER_URL, item.getImageUrl());
+            intent.putExtra(MovieDetailActivity.ARG_MOVIE_RATING, item.getUserRating());
+//            intent.putExtra(MovieDetailActivity.ARG_BUNDLE_ID, arguments);//holder.mItem.id);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
     }
 
     private class downloadMovieList extends AsyncTask<String, Void, String>
     {
 
         @Override
-        protected String doInBackground(String... urls) {
+        protected String doInBackground(String... sortType) {
 
                 HttpURLConnection urlConnection = null;
                 BufferedReader reader = null;
@@ -111,11 +196,14 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
                 final String SORT_PARAM = "sort_by";
                 final String APPID_PARAM = "api_key";
 
-                //todo change this string to sort by different values
-                String popularDescending = "popularity.desc";
+                String sortString = "popularity.desc";
+                if(sortType[0] == SORT_BY_RATING)
+                {
+                    sortString = "vote_average.desc";
+                }
 
                 Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_PARAM, popularDescending)
+                        .appendQueryParameter(SORT_PARAM, sortString)
                         .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
                         .build();
 
@@ -190,68 +278,4 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
         }
     }
 
-//    public class SimpleItemRecyclerViewAdapter
-//            extends ArrayAdapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-//
-//
-//        public SimpleItemRecyclerViewAdapter(Context context, int resource, List<ViewHolder> objects) {
-//            super(context, resource, objects);
-//        }
-//
-//        @Override
-//        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-//            View view = LayoutInflater.from(parent.getContext())
-//                    .inflate(R.layout.movie_list_content, parent, false);
-//            return new ViewHolder(view);
-//        }
-//
-//        @Override
-//        public void onBindViewHolder(final ViewHolder holder, int position) {
-//            holder.mItem = mValues.get(position);
-//            holder.mIdView.setText(mValues.get(position).id);
-//            holder.mContentView.setText(mValues.get(position).content);
-//
-//            holder.mView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (mTwoPane) {
-//                        Bundle arguments = new Bundle();
-//                        arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, holder.mItem.id);
-//                        MovieDetailFragment fragment = new MovieDetailFragment();
-//                        fragment.setArguments(arguments);
-//                        getSupportFragmentManager().beginTransaction()
-//                                .replace(R.id.movie_detail_container, fragment)
-//                                .commit();
-//                    } else {
-//                        Context context = v.getContext();
-//                        Intent intent = new Intent(context, MovieDetailActivity.class);
-//                        intent.putExtra(MovieDetailFragment.ARG_MOVIE_ID, holder.mItem.id);
-//
-//                        context.startActivity(intent);
-//                    }
-//                }
-//            });
-//        }
-//
-//
-//
-//        public class ViewHolder extends RecyclerView.ViewHolder {
-//            public final View mView;
-//            public final TextView mIdView;
-//            public final TextView mContentView;
-//            public MovieContent.MovieItem mItem;
-//
-//            public ViewHolder(View view) {
-//                super(view);
-//                mView = view;
-//                mIdView = (TextView) view.findViewById(R.id.id);
-//                mContentView = (TextView) view.findViewById(R.id.content);
-//            }
-//
-//            @Override
-//            public String toString() {
-//                return super.toString() + " '" + mContentView.getText() + "'";
-//            }
-//        }
-//    }
 }
