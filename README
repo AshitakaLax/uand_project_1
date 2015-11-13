@@ -1,0 +1,6 @@
+
+This project requires you to have an api key from [themoviedb](https://www.themoviedb.org/account/signup)
+
+once you have your api key insert the key into the gradle.properties file as follows.
+
+MyTheMovieDbApiKey="**ApiKey**"
