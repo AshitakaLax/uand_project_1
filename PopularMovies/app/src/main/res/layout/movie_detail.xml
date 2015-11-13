@@ -44,8 +44,7 @@
                 <ImageView
                     android:layout_width="@dimen/item_width"
                     android:layout_height="@dimen/item_height"
-                    android:id="@+id/moviePosterImageView"
-                    android:src="@drawable/example" />
+                    android:id="@+id/moviePosterImageView" />
 
                 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
@@ -55,9 +54,10 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:textIsSelectable="true"
+                    android:layout_marginLeft="16dp"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="23dp"
-                    android:layout_marginStart="23dp"/>
+                    android:layout_toRightOf="@+id/moviePosterImageView"
+                    android:layout_toEndOf="@+id/moviePosterImageView" />
 
                 <TextView
                     style="?android:attr/textAppearanceLarge"
