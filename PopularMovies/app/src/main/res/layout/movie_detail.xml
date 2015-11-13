@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="vertical"
@@ -21,7 +19,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:layout_width="fill_parent"
@@ -38,12 +36,16 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp">
 
                 <ImageView
                     android:layout_width="@dimen/item_width"
                     android:layout_height="@dimen/item_height"
-                    android:id="@+id/moviePosterImageView" />
+                    android:id="@+id/moviePosterImageView"
+                    android:src="@drawable/example" />
 
                 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
@@ -53,12 +55,9 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:textIsSelectable="true"
-                    android:layout_weight="0.24"
                     android:layout_alignParentTop="true"
-                    android:layout_toRightOf="@+id/moviePosterImageView"
                     android:layout_marginLeft="23dp"
-                    android:layout_marginStart="23dp"
-                    android:text="date" />
+                    android:layout_marginStart="23dp"/>
 
                 <TextView
                     style="?android:attr/textAppearanceLarge"
@@ -69,11 +68,9 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:textIsSelectable="true"
-                    android:layout_weight="0.24"
                     android:layout_below="@+id/releaseDateTextView"
                     android:layout_alignLeft="@+id/releaseDateTextView"
-                    android:layout_alignStart="@+id/releaseDateTextView"
-                    android:text="Time min" />
+                    android:layout_alignStart="@+id/releaseDateTextView" />
 
                 <TextView
                     style="?android:attr/textAppearanceLarge"
@@ -84,24 +81,23 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:textIsSelectable="true"
-                    android:layout_weight="0.24"
                     android:layout_below="@+id/movieTimeLengthTextView"
                     android:layout_alignLeft="@+id/movieTimeLengthTextView"
-                    android:layout_alignStart="@+id/movieTimeLengthTextView"
-                    android:text="rating/10" />
+                    android:layout_alignStart="@+id/movieTimeLengthTextView"/>
 
             </RelativeLayout>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:text="movie overview"
                     android:id="@+id/movieOverviewTextView" />
             </LinearLayout>
 

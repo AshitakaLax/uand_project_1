@@ -59,6 +59,7 @@ public class MovieDetailFragment extends Fragment {
         else {
             mItem = savedInstanceState.getParcelable("movies");
         }
+
         if (getArguments().containsKey(ARG_MOVIE_ID)) {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader

@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginLeft="0dp"
+    android:layout_marginRight="0dp"
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context=".MovieGridActivity">
+    tools:context=".MovieGridActivity"
+    android:weightSum="0">
 
     <!--
     This layout is a two-pane layout for the movies
@@ -19,19 +20,23 @@
     <GridView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/movie_grid"
         android:numColumns="3"
-        android:gravity="center"
-        android:stretchMode="columnWidth"
-        android:layout_width="@dimen/total_column_width"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
         tools:context=".movieGridActivity"
-        tools:listitem="@layout/movie_list_content">
+        android:gravity="center"
+        tools:listitem="@layout/movie_item"
+        android:layout_weight="2"
+        android:stretchMode="columnWidth">
 
     </GridView>
 
     <FrameLayout
         android:id="@+id/movie_detail_container"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
+        android:layout_weight="3">
+
+        <include layout="@layout/movie_detail" />
+    </FrameLayout>
 
 </LinearLayout>

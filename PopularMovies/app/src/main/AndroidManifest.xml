@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ashitakalax.com.popularmovies">
+    <!--This is to fetch json and image data -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!--This is to optimize whether we should even attempt to fetch data,
+    after GCM implement this should be removed -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"

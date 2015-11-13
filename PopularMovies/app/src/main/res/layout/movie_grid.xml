@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/movie_grid"
-    android:numColumns="auto_fit"
+    android:numColumns="2"
     android:gravity="center"
-    android:stretchMode="columnWidth"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:listitem="@layout/movie_item"
+    android:clickable="true"
+    android:stretchMode="columnWidth">
 
 </GridView>

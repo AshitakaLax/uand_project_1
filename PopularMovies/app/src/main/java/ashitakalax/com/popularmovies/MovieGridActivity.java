@@ -2,6 +2,8 @@ package ashitakalax.com.popularmovies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import org.json.JSONException;
 
@@ -47,7 +50,9 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
      * device.
      */
     private boolean mTwoPane;
+    private String mSortTypeStr;
     private  GridView mGridView;
+    private TextView mNoInternetTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,28 +65,48 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
 
         mGridView = (GridView)findViewById(R.id.movie_grid);
+        mNoInternetTextView = (TextView)findViewById(R.id.noInternetTextView);
         assert mGridView != null;
+
+        if(savedInstanceState == null || !savedInstanceState.containsKey("SortType")) {
+
+            mSortTypeStr = SORT_BY_POPULARITY;
+        }
+        else {
+
+            mSortTypeStr = savedInstanceState.getString("SortType", SORT_BY_POPULARITY);
+        }
         //todo change the number of columns and the column width based on the size of the display
 
         mGridView.setNumColumns(3);
         //todo change from TwoPane
         mTwoPane = false;
+        mGridView.setOnItemClickListener(this);
 
         //here we want to do a json query to get the list of movies
-        new downloadMovieList().execute(SORT_BY_POPULARITY);
-        //setupArrayAdapter(gridView);
-
-        if (findViewById(R.id.movie_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-        }else {
-            mTwoPane = false;
+        if(isNetworkAvailable()) {
+            mNoInternetTextView.setVisibility(View.INVISIBLE);
+            new downloadMovieList().execute(mSortTypeStr);
         }
+        else
+            mNoInternetTextView.setVisibility(View.VISIBLE);
+
+        mTwoPane = findViewById(R.id.movie_detail_container) != null;
     }
 
+    /**
+     * This check is to optimize whether we should even attempt to request the json data
+     * Note: this code snippet was taken from
+     * http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
+     * answer by Alexandre Jasmin
+     * @return true if network connection is setup(not direct internet connection)
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -91,18 +116,45 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("SortType", this.mSortTypeStr);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        this.mSortTypeStr = savedInstanceState.getString("SortType",  SORT_BY_POPULARITY);
+        if(isNetworkAvailable()) {
+            mNoInternetTextView.setVisibility(View.INVISIBLE);
+            new downloadMovieList().execute(mSortTypeStr);
+        }
+        else
+            mNoInternetTextView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_popularity:
                 //send request for the
-                new downloadMovieList().execute(SORT_BY_POPULARITY);
-                return true;
+                this.mSortTypeStr = SORT_BY_POPULARITY;
+                break;
             case R.id.sort_highest_rated:
-                new downloadMovieList().execute(SORT_BY_RATING);
-                return true;
+                this.mSortTypeStr = SORT_BY_RATING;
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+
+        if(isNetworkAvailable()) {
+            mNoInternetTextView.setVisibility(View.INVISIBLE);
+            new downloadMovieList().execute(this.mSortTypeStr);
+        }
+        else
+            mNoInternetTextView.setVisibility(View.VISIBLE);
+
+        return true;
     }
 
     private void setupArrayAdapter(String jsonReply) {
@@ -113,7 +165,11 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        mGridView.setOnItemClickListener(this);
+        if(movieItemList == null) {
+
+            mNoInternetTextView.setVisibility(View.VISIBLE);
+            return;
+        }
         mGridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), R.id.movie_grid, movieItemList));
         //load the first on the list to make sure that there is something on the display
         if (mTwoPane && movieItemList.size() != 0) {
@@ -130,8 +186,6 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail_container, fragment)
                     .commit();
-        }else {
-
         }
     }
 
@@ -154,17 +208,6 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
                     .commit();
         } else {
 
-
-
-//            Bundle arguments = new Bundle();
-//
-//            arguments.putInt(MovieDetailActivity.ARG_MOVIE_ID, item.getId());
-//            arguments.putString(MovieDetailActivity.ARG_MOVIE_TITLE, item.getOriginalTitle());
-//            arguments.putString(MovieDetailActivity.ARG_MOVIE_OVERVIEW, item.getPlotSynopsis());
-//            arguments.putString(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE, item.getReleaseDate());
-//            arguments.putString(MovieDetailActivity.ARG_MOVIE_POSTER_URL, item.getImageUrl());
-//            arguments.putDouble(MovieDetailActivity.ARG_MOVIE_RATING, item.getUserRating());
-
             Context context = view.getContext();
             Intent intent = new Intent(context, MovieDetailActivity.class);
             intent.putExtra(MovieDetailActivity.ARG_MOVIE_ID, item.getId());
@@ -174,7 +217,6 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             intent.putExtra(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE, item.getReleaseDate());
             intent.putExtra(MovieDetailActivity.ARG_MOVIE_POSTER_URL, item.getImageUrl());
             intent.putExtra(MovieDetailActivity.ARG_MOVIE_RATING, item.getUserRating());
-//            intent.putExtra(MovieDetailActivity.ARG_BUNDLE_ID, arguments);//holder.mItem.id);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
@@ -197,7 +239,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
                 final String APPID_PARAM = "api_key";
 
                 String sortString = "popularity.desc";
-                if(sortType[0] == SORT_BY_RATING)
+                if(sortType[0].equals(SORT_BY_RATING))
                 {
                     sortString = "vote_average.desc";
                 }
@@ -225,7 +267,8 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
                     // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                     // But it does make debugging a *lot* easier if you print out the completed
                     // buffer for debugging.
-                    buffer.append(line + "\n");
+                    buffer.append(line);
+                    buffer.append("\n");
                 }
 
                 if (buffer.length() == 0) {
@@ -255,6 +298,12 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             return movieJsonStr;
         }
         protected void onPostExecute(String result) {
+            if(result == null || result.isEmpty())
+            {
+                mNoInternetTextView.setVisibility(View.VISIBLE);
+                return;//can't setup array adapter without any data
+            }
+            mNoInternetTextView.setVisibility(View.INVISIBLE);
             setupArrayAdapter(result);
         }
     }

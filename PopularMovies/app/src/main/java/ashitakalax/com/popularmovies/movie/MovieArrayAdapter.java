@@ -38,8 +38,6 @@ public class MovieArrayAdapter extends ArrayAdapter<MovieItem> {
 
         ImageView movieImageView = (ImageView) convertView.findViewById(R.id.movie_item_image);
 
-        //todo change the url to be from the movie Item
-
         String imageUrl = "http://image.tmdb.org/t/p/w185" + item.getImageUrl();
         Picasso.with(getContext()).load(imageUrl).into(movieImageView);
         convertView.setTag(item);
