@@ -85,6 +85,18 @@
                     android:layout_alignLeft="@+id/movieTimeLengthTextView"
                     android:layout_alignStart="@+id/movieTimeLengthTextView"/>
 
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mark As\n Favorites"
+                    android:id="@+id/favoriteButton"
+                    android:layout_below="@+id/movieRatingTextView"
+                    android:layout_marginTop="15dp"
+                    android:background="#00bfa5"
+                    android:layout_alignLeft="@+id/movieRatingTextView"
+                    android:layout_alignStart="@+id/movieRatingTextView"
+                    android:textSize="12dp" />
+
             </RelativeLayout>
 
             <LinearLayout
@@ -99,6 +111,42 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:id="@+id/movieOverviewTextView" />
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="2dp"
+                    android:background="#424242"
+                    android:id="@+id/barSplitter" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Trailers:"
+                    android:id="@+id/TrailersTitleTextView" />
+
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TrailersListView"
+                    tools:listitem="@layout/trailer_detail"/>
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="2dp"
+                    android:background="#424242"
+                    android:id="@+id/reviewBarSplitter" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="Reviews:"
+                    android:id="@+id/reviewsTitleTextView" />
+
+                <ListView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/reviewsListView"
+                    tools:listitem="@layout/trailer_detail"/>
             </LinearLayout>
 
         </LinearLayout>

@@ -17,5 +17,10 @@
         android:orderInCategory="100"
         android:title="@string/sort_by_rating_option"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/sort_favories"
+        android:orderInCategory="100"
+        android:title="@string/sort_by_favorites_option"
+        app:showAsAction="never" />
 
 </menu>

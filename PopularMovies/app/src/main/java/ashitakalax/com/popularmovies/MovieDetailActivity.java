@@ -21,18 +21,6 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
  */
 public class MovieDetailActivity extends AppCompatActivity {
 
-
-    public static final String ARG_BUNDLE_ID = "movie_bundle";
-
-    public static final String ARG_MOVIE_ID = "movie_id";
-    public static final String ARG_MOVIE_TITLE = "movie_title";
-    public static final String ARG_MOVIE_OVERVIEW = "movie_overview";
-    public static final String ARG_MOVIE_RATING = "movie_vote_average";
-    public static final String ARG_MOVIE_RELEASE_DATE = "movie_release_date";
-    public static final String ARG_MOVIE_POSTER_URL = "movie_poster_path";
-
-    private MovieItem mItem;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,16 +48,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             // using a fragment transaction.
             Bundle arguments = new Bundle();
 
-
-            arguments.putInt(MovieDetailActivity.ARG_MOVIE_ID, getIntent().getIntExtra(MovieDetailActivity.ARG_MOVIE_ID, 0));
-            arguments.putString(MovieDetailActivity.ARG_MOVIE_TITLE, getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_TITLE));
-            arguments.putString(MovieDetailActivity.ARG_MOVIE_OVERVIEW,  getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_OVERVIEW));
-            arguments.putString(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE,  getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_RELEASE_DATE));
-            arguments.putString(MovieDetailActivity.ARG_MOVIE_POSTER_URL, getIntent().getStringExtra(MovieDetailActivity.ARG_MOVIE_POSTER_URL));
-            arguments.putDouble(MovieDetailActivity.ARG_MOVIE_RATING, getIntent().getDoubleExtra(MovieDetailActivity.ARG_MOVIE_RATING, 0.0));
-
-
-
+            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, getIntent().getParcelableExtra(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID));
 
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(arguments);

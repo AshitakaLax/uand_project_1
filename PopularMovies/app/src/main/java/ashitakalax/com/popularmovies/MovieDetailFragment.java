@@ -26,12 +26,7 @@ public class MovieDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_MOVIE_ID = "movie_id";
-    public static final String ARG_MOVIE_TITLE = "movie_title";
-    public static final String ARG_MOVIE_OVERVIEW = "movie_overview";
-    public static final String ARG_MOVIE_RATING = "movie_vote_average";
-    public static final String ARG_MOVIE_RELEASE_DATE = "movie_release_date";
-    public static final String ARG_MOVIE_POSTER_URL = "movie_poster_path";
+    public static final String ARG_MOVIE_BUNDLE_ID = "SelectedMovieItem";
 
     /**
      * The dummy content this fragment is presenting.
@@ -53,54 +48,16 @@ public class MovieDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState == null || !savedInstanceState.containsKey("movies")) {
+        this.mItem  = this.getArguments().getParcelable(ARG_MOVIE_BUNDLE_ID);
+
+        if(this.mItem == null && savedInstanceState == null) {
             mItem = new MovieItem();
         }
-        else {
-            mItem = savedInstanceState.getParcelable("movies");
-        }
 
-        if (getArguments().containsKey(ARG_MOVIE_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = new MovieItem();
-            mItem.setId(getArguments().getInt(ARG_MOVIE_ID));
-            mItem.setPlotSynopsis(getArguments().getString(ARG_MOVIE_OVERVIEW));
-            mItem.setImageUrl(getArguments().getString(ARG_MOVIE_POSTER_URL));
-            mItem.setOriginalTitle(getArguments().getString(ARG_MOVIE_TITLE));
-            mItem.setUserRating(getArguments().getDouble(ARG_MOVIE_RATING));
-            mItem.setReleaseDate(getArguments().getString(ARG_MOVIE_RELEASE_DATE));
-
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle("Movie Detail");
-            }
-
-            TextView titleTextView = (TextView) activity.findViewById(R.id.titleTextView);
-            TextView releaseDateTextView = (TextView) activity.findViewById(R.id.releaseDateTextView);
-            TextView movieRatingTextView = (TextView) activity.findViewById(R.id.movieRatingTextView);
-            TextView movieOverviewTextView = (TextView) activity.findViewById(R.id.movieOverviewTextView);
-            ImageView posterImageView = (ImageView) activity.findViewById(R.id.moviePosterImageView);
-            if (titleTextView != null) {
-                titleTextView.setText(mItem.getOriginalTitle());
-            }
-            if (releaseDateTextView != null) {
-                releaseDateTextView.setText(mItem.getReleaseDate());
-            }
-            if (movieRatingTextView != null) {
-                movieRatingTextView.setText(mItem.getUserRating() + "/10");
-            }
-            if (movieOverviewTextView != null) {
-                movieOverviewTextView.setText(mItem.getPlotSynopsis());
-            }
-            if (posterImageView != null) {
-
-                String imageUrl = "http://image.tmdb.org/t/p/w185" + mItem.getImageUrl();
-                Picasso.with(getContext()).load(imageUrl).into(posterImageView);
-            }
-
+        Activity activity = this.getActivity();
+        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+        if (appBarLayout != null) {
+            appBarLayout.setTitle("Movie Detail");
         }
     }
 
