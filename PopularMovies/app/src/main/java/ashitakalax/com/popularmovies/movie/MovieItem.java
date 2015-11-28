@@ -1,14 +1,25 @@
 package ashitakalax.com.popularmovies.movie;
 
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import ashitakalax.com.popularmovies.BuildConfig;
 
 /**
  * todo add file Description
@@ -26,6 +37,11 @@ public class MovieItem implements Parcelable{
     private double mUserRating;//0-10
     private String mReleaseDate;//format "2014-10-23"
 
+    private ArrayList<TrailerItem> mTrailers;
+    private ArrayList<ReviewItem> mReviews;
+
+
+
     public MovieItem(Parcel in)
     {
         this.mOriginalTitle = in.readString();
@@ -34,6 +50,8 @@ public class MovieItem implements Parcelable{
         this.mReleaseDate = in.readString();
         this.mId = in.readInt();
         this.mUserRating = in.readDouble();
+        //todo add support for parsing the array of trailers and review objects
+        //this.mTrailers = ...
     }
 
     public MovieItem()
@@ -44,6 +62,8 @@ public class MovieItem implements Parcelable{
         this.mOriginalTitle = "";
         this.mUserRating = 0.0;
         this.mReleaseDate  = "1900-1-1";
+        this.mTrailers = new ArrayList<TrailerItem>();
+        this.mReviews = new ArrayList<ReviewItem>();
 
     }
 
@@ -107,6 +127,23 @@ public class MovieItem implements Parcelable{
         this.mReleaseDate = mReleaseDate;
     }
 
+    public ArrayList<TrailerItem> getTrailers()
+    {
+        return  this.mTrailers;
+    }
+
+    public void setTrailers(ArrayList<TrailerItem> trailers) {
+        this.mTrailers = trailers;
+    }
+
+    public ArrayList<ReviewItem> getReviews() {
+        return mReviews;
+    }
+
+    public void setReviews(ArrayList<ReviewItem> reviews) {
+        this.mReviews = reviews;
+    }
+
     @Override
         public String toString() {
             return this.mPlotSynopsis;
@@ -125,6 +162,8 @@ public class MovieItem implements Parcelable{
         parcel.writeString(this.mReleaseDate);
         parcel.writeInt(this.mId);
         parcel.writeDouble(this.mUserRating);
+        //todo add write to array of trailer and review objects
+
     }
 
     public static List<MovieItem> getMoviesFromJson(String movieJsonStr) throws JSONException
@@ -153,12 +192,161 @@ public class MovieItem implements Parcelable{
             item.setUserRating(movieJson.getDouble(MOVIE_RATING));
             item.setReleaseDate(movieJson.getString(MOVIE_RELEASE_DATE));
             item.setOriginalTitle(movieJson.getString(MOVIE_TITLE));
+            //this is already running on the background thread we technically skip on another
+            //background task from running
+
+            //foreach of these fetch the trailers and reviews for each movie
+            item.setTrailers(MovieItem.queryTrailerList(item.getId()));
+            item.setReviews(MovieItem.queryReviewList(item.getId()));
 
             movieItemList.add(item);
         }
 
         return movieItemList;
 
+    }
+
+
+    private static ArrayList<TrailerItem> queryTrailerList(int movieId)
+    {
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String trailerJsonStr = null;
+        ArrayList<TrailerItem> trailerItemList = null;
+        try
+        {
+
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/videos?";
+            final String APPID_PARAM = "api_key";
+
+
+            Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line);
+                buffer.append("\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return null;
+            }
+            trailerJsonStr = buffer.toString();
+
+        }
+        catch (IOException ioex)
+        {
+
+            Log.e("PlaceholderFragment", "Error ", ioex);
+        }finally{
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                }
+            }
+        }
+        //parse the json string into a movieItem list
+        try {
+            trailerItemList = TrailerItem.getTrailersFromJson(trailerJsonStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return trailerItemList;
+    }
+
+    private static ArrayList<ReviewItem> queryReviewList(int movieId) {
+
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String reviewJsonStr = null;
+        ArrayList<ReviewItem> reviewItemList = null;
+        try
+        {
+
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/review?";
+            final String APPID_PARAM = "api_key";
+
+
+            Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line);
+                buffer.append("\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return null;
+            }
+            reviewJsonStr = buffer.toString();
+
+        }
+        catch (IOException ioex)
+        {
+
+            Log.e("PlaceholderFragment", "Error ", ioex);
+        }finally{
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                }
+            }
+        }
+        //parse the json string into a movieItem list
+        try {
+            reviewItemList = ReviewItem.getReviewsFromJson(reviewJsonStr);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return reviewItemList;
     }
 }
 
