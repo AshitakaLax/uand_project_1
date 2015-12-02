@@ -107,6 +107,7 @@ public class ReviewItem implements Parcelable{
     public static ArrayList<ReviewItem> getReviewsFromJson(String movieJsonStr) throws JSONException
     {
         // list of
+        final String REVIEWS_RESULTS = "reviews";
         final String REVIEW_LIST = "results";
         final String REVIEW_ID = "id";
         final String REVIEW_AUTHOR = "author";
@@ -114,6 +115,8 @@ public class ReviewItem implements Parcelable{
         final String REVIEW_URL = "url";
 
         JSONObject movieQueryJson = new JSONObject(movieJsonStr);
+
+        movieQueryJson = movieQueryJson.getJSONObject(REVIEWS_RESULTS);
         JSONArray movieArray = movieQueryJson.getJSONArray(REVIEW_LIST);
 
         ArrayList<ReviewItem> movieItemList = new ArrayList<ReviewItem>();

@@ -196,9 +196,8 @@ public class MovieItem implements Parcelable{
             //background task from running
 
             //foreach of these fetch the trailers and reviews for each movie
-            item.setTrailers(MovieItem.queryTrailerList(item.getId()));
-            item.setReviews(MovieItem.queryReviewList(item.getId()));
-
+//            item.setReviews(MovieItem.queryReviewList(item.getId()));
+            MovieItem.queryMovieDetails(item);
             movieItemList.add(item);
         }
 
@@ -206,6 +205,80 @@ public class MovieItem implements Parcelable{
 
     }
 
+    private static boolean queryMovieDetails(MovieItem movieItem)
+    {
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+        String movieDetailJsonStr = null;
+        ArrayList<TrailerItem> trailerItemList = null;
+        try
+        {
+
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieItem.getId() + "?";
+            final String APPID_PARAM = "api_key";
+            final String MOVIE_DATA_PARAM = "append_to_response";
+            final String MOVIE_DATA_VALUE = "videos,reviews";
+
+
+            Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                    .appendQueryParameter(MOVIE_DATA_PARAM, MOVIE_DATA_VALUE)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return false;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line);
+                buffer.append("\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return false;
+            }
+            movieDetailJsonStr = buffer.toString();
+
+        }
+        catch (IOException ioex)
+        {
+
+            Log.e("PlaceholderFragment", "Error ", ioex);
+        }finally{
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                }
+            }
+        }
+        //parse the json string into a movieItem list
+        try {
+            movieItem.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
+            movieItem.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
 
     private static ArrayList<TrailerItem> queryTrailerList(int movieId)
     {
@@ -216,12 +289,15 @@ public class MovieItem implements Parcelable{
         try
         {
 
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/videos?";
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "?";
             final String APPID_PARAM = "api_key";
+            final String MOVIE_DATA_PARAM = "append_to_response";
+            final String MOVIE_DATA_VALUE = "videos,reviews";
 
 
             Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
                     .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                    .appendQueryParameter(MOVIE_DATA_PARAM, MOVIE_DATA_VALUE)
                     .build();
 
             URL url = new URL(builtUri.toString());
@@ -287,7 +363,7 @@ public class MovieItem implements Parcelable{
         try
         {
 
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/review?";
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/reviews?";
             final String APPID_PARAM = "api_key";
 
 
@@ -348,5 +424,6 @@ public class MovieItem implements Parcelable{
         }
         return reviewItemList;
     }
+
 }
 

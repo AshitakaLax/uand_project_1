@@ -28,10 +28,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import ashitakalax.com.popularmovies.movie.MovieArrayAdapter;
 import ashitakalax.com.popularmovies.movie.MovieItem;
+import ashitakalax.com.popularmovies.movie.ReviewItem;
 
 
 /**
@@ -328,6 +330,84 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             mNoInternetTextView.setVisibility(View.INVISIBLE);
 
             setupArrayAdapter(this.movieItemList);
+        }
+    }
+    private class downloadReviewList extends AsyncTask<String, Void, String>
+    {
+        ArrayList<ReviewItem> reviewItemList = null;
+        @Override
+        protected String doInBackground(String... movie) {
+
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String reviewJsonStr = null;
+            ArrayList<ReviewItem> reviewItemList = null;
+            try
+            {
+
+                final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movie + "/reviews?";
+                final String APPID_PARAM = "api_key";
+
+
+                Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                        .build();
+
+                URL url = new URL(builtUri.toString());
+                urlConnection = (HttpURLConnection)url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line);
+                    buffer.append("\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                reviewJsonStr = buffer.toString();
+
+            }
+            catch (IOException ioex)
+            {
+
+                Log.e("PlaceholderFragment", "Error ", ioex);
+            }finally{
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("PlaceholderFragment", "Error closing stream", e);
+                    }
+                }
+            }
+            //parse the json string into a movieItem list
+            try {
+                reviewItemList = ReviewItem.getReviewsFromJson(reviewJsonStr);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return "";
+        }
+        protected void onPostExecute(String result) {
+
         }
     }
 

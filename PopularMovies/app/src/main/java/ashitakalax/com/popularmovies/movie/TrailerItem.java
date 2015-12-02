@@ -106,6 +106,7 @@ public class TrailerItem implements Parcelable{
     public static ArrayList<TrailerItem> getTrailersFromJson(String movieJsonStr) throws JSONException
     {
         // list of
+        final String VIDEOS_LIST = "videos";
         final String TRAILER_LIST = "results";
         final String TRAILER_ID = "id";
         final String TRAILER_TITLE = "name";
@@ -113,6 +114,8 @@ public class TrailerItem implements Parcelable{
         final String TRAILER_HOST_SITE = "site";
 
         JSONObject movieQueryJson = new JSONObject(movieJsonStr);
+        movieQueryJson = movieQueryJson.getJSONObject(VIDEOS_LIST);
+
         JSONArray movieArray = movieQueryJson.getJSONArray(TRAILER_LIST);
 
         ArrayList<TrailerItem> movieItemList = new ArrayList<TrailerItem>();
