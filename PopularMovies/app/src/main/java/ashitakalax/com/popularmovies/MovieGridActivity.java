@@ -46,10 +46,12 @@ import ashitakalax.com.popularmovies.movie.ReviewItem;
  */
 public class MovieGridActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
+    public static final String FAVORITE_MOVIES_SHARE_PREF_FILE = "favorite_movie_shared_preferences";
+
     private final String SORT_BY_POPULARITY = "sort_by_popularity";
     private final String SORT_BY_RATING = "sort_by_rating";
     private final String SORT_TYPE = "sort_type";
-    private final String MOVIE_SHARE_PREF_FILE = "movie_shared_preferences";
+    public static final String MOVIE_SHARE_PREF_FILE = "movie_shared_preferences";
     private final String MOVIE_ITEM_LIST = "movie_item_list";
 
     /**
@@ -186,58 +188,69 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
         this.mMovieItemList = movieItemList;
 
         mGridView.setAdapter(new MovieArrayAdapter(getApplicationContext(), R.id.movie_grid, this.mMovieItemList));
+
         //load the first on the list to make sure that there is something on the display
         if (mTwoPane && this.mMovieItemList.size() != 0) {
-            Bundle arguments = new Bundle();
+            new downloadMovieDetails().execute(this.mMovieItemList.get(0));
 
-            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, this.mMovieItemList.get(0));//go with the first as default
-
-            MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, fragment)
-                    .commit();
+            //we will want to begin the query for the movie details, then go to the fragment
+//            Bundle arguments = new Bundle();
+//
+//            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, this.mMovieItemList.get(0));//go with the first as default
+//
+//            MovieDetailFragment fragment = new MovieDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_detail_container, fragment)
+//                    .commit();
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         MovieItem item = (MovieItem)view.getTag();
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, item);//go with the first as default
 
-        if (mTwoPane) {
-            MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, fragment)
-                    .commit();
-        } else {
-            Context context = view.getContext();
-            Intent intent = new Intent(context, MovieDetailActivity.class);
-            intent.putExtras(arguments);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }
+        new downloadMovieDetails().execute(item);
+
+//        Bundle arguments = new Bundle();
+//        arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, item);//go with the first as default
+//
+//        if (mTwoPane) {
+//            MovieDetailFragment fragment = new MovieDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_detail_container, fragment)
+//                    .commit();
+//        } else {
+//            Context context = view.getContext();
+//            Intent intent = new Intent(context, MovieDetailActivity.class);
+//            intent.putExtras(arguments);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
+//        }
     }
 
     @Override
     public void onClick(View view) {
-        if (mTwoPane) {
-            Bundle arguments = new Bundle();
-            //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
-            MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_detail_container, fragment)
-                    .commit();
-        } else {
-            Context context = view.getContext();
-            Intent intent = new Intent(context, MovieDetailActivity.class);
-            //intent.putExtra(MovieDetailFragment.ARG_MOVIE_ID, "0");//holder.mItem.id);
-
-            context.startActivity(intent);
-        }
+        //new downloadMovieDetails().execute(this.mMovieItemList.get(0));
+//
+//        if (mTwoPane) {
+//            //new downloadMovieDetails().execute(this.mMovieItemList.get(0));
+//
+//            Bundle arguments = new Bundle();
+//            //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
+//            MovieDetailFragment fragment = new MovieDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_detail_container, fragment)
+//                    .commit();
+//        } else {
+//            Context context = view.getContext();
+//            Intent intent = new Intent(context, MovieDetailActivity.class);
+//            //intent.putExtra(MovieDetailFragment.ARG_MOVIE_ID, "0");//holder.mItem.id);
+//
+//            context.startActivity(intent);
+//        }
     }
 
     private class downloadMovieList extends AsyncTask<String, Void, String>
@@ -332,81 +345,51 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             setupArrayAdapter(this.movieItemList);
         }
     }
-    private class downloadReviewList extends AsyncTask<String, Void, String>
+    private class downloadMovieDetails extends AsyncTask<MovieItem, Void, MovieItem>
     {
-        ArrayList<ReviewItem> reviewItemList = null;
         @Override
-        protected String doInBackground(String... movie) {
+        protected MovieItem doInBackground(MovieItem... movie) {
 
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String reviewJsonStr = null;
-            ArrayList<ReviewItem> reviewItemList = null;
-            try
-            {
-
-                final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movie + "/reviews?";
-                final String APPID_PARAM = "api_key";
+            //this will query the movie info
+            MovieItem.queryMovieDetails(movie[0]);
 
 
-                Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                        .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
-                        .build();
-
-                URL url = new URL(builtUri.toString());
-                urlConnection = (HttpURLConnection)url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    // Nothing to do.
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
-                    buffer.append(line);
-                    buffer.append("\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                reviewJsonStr = buffer.toString();
-
-            }
-            catch (IOException ioex)
-            {
-
-                Log.e("PlaceholderFragment", "Error ", ioex);
-            }finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("PlaceholderFragment", "Error closing stream", e);
-                    }
-                }
-            }
-            //parse the json string into a movieItem list
-            try {
-                reviewItemList = ReviewItem.getReviewsFromJson(reviewJsonStr);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return "";
+            return movie[0];
         }
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(MovieItem movie) {
+
+            Bundle arguments = new Bundle();
+
+            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, movie);//this.mMovieItemList.get(0));//go with the first as default
+
+            if (mTwoPane) {
+                //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
+                MovieDetailFragment fragment = new MovieDetailFragment();
+                fragment.setArguments(arguments);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, fragment)
+                        .commit();
+            } else {
+                Context context = getApplicationContext();//.getContext();
+
+                Intent intent = new Intent(context, MovieDetailActivity.class);
+                //intent.putExtra(MovieDetailFragment.ARG_MOVIE_ID, "0");//holder.mItem.id);
+                intent.putExtras(arguments);
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            }
+//            //maybe update the data
+//            //we will want to begin the query for the movie details, then go to the fragment
+//            Bundle arguments = new Bundle();
+//
+//            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, movie);//this.mMovieItemList.get(0));//go with the first as default
+//
+//            MovieDetailFragment fragment = new MovieDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_detail_container, fragment)
+//                    .commit();
 
         }
     }

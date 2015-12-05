@@ -50,8 +50,14 @@ public class MovieItem implements Parcelable{
         this.mReleaseDate = in.readString();
         this.mId = in.readInt();
         this.mUserRating = in.readDouble();
-        //todo add support for parsing the array of trailers and review objects
-        //this.mTrailers = ...
+
+        this.mTrailers = new ArrayList<TrailerItem>();
+        this.mReviews = new ArrayList<ReviewItem>();
+        in.readTypedList(this.mTrailers, TrailerItem.CREATOR);
+        in.readTypedList(this.mReviews, ReviewItem.CREATOR);
+
+//        in.readTypedList(this.mTrailers, TrailerItem.;TrailerItem.getClass().CREATOR);
+//        in.readTypedList(this.mReviews, ReviewItem.CREATOR);
     }
 
     public MovieItem()
@@ -162,6 +168,8 @@ public class MovieItem implements Parcelable{
         parcel.writeString(this.mReleaseDate);
         parcel.writeInt(this.mId);
         parcel.writeDouble(this.mUserRating);
+        parcel.writeTypedList(this.mTrailers);
+        parcel.writeTypedList(this.mReviews);
         //todo add write to array of trailer and review objects
 
     }
@@ -196,8 +204,9 @@ public class MovieItem implements Parcelable{
             //background task from running
 
             //foreach of these fetch the trailers and reviews for each movie
+
 //            item.setReviews(MovieItem.queryReviewList(item.getId()));
-            MovieItem.queryMovieDetails(item);
+//            MovieItem.queryMovieDetails(item);
             movieItemList.add(item);
         }
 
@@ -205,7 +214,7 @@ public class MovieItem implements Parcelable{
 
     }
 
-    private static boolean queryMovieDetails(MovieItem movieItem)
+    public static boolean queryMovieDetails(MovieItem movieItem)
     {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

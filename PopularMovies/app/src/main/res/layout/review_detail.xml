@@ -9,27 +9,13 @@
     android:showDividers="middle"
     tools:context=".MovieDetailActivity">
 
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/playButton"
-        android:background="@android:drawable/ic_media_play"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="0dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="0dp"
-        android:layout_centerVertical="true" />
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Trailer"
-        android:id="@+id/trailerLabelTextView"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Review"
+        android:id="@+id/reviewLabelTextView"
         android:layout_marginLeft="20dp"
-        android:layout_toRightOf="@+id/playButton"
-        android:layout_toEndOf="@+id/playButton"
         android:layout_marginStart="20dp"
         android:layout_centerVertical="true" />
     <View
@@ -37,7 +23,7 @@
         android:layout_height="2dp"
         android:background="#757575"
         android:id="@+id/barSplitter"
-        android:layout_below="@+id/playButton"
+        android:layout_below="@+id/reviewLabelTextView"
         android:layout_marginTop="4dp" />
 </RelativeLayout>
 
