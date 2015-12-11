@@ -2,7 +2,6 @@ package ashitakalax.com.popularmovies;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -15,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -27,9 +25,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import ashitakalax.com.popularmovies.movie.MovieItem;
-import ashitakalax.com.popularmovies.movie.ReviewArrayAdapter;
 import ashitakalax.com.popularmovies.movie.ReviewItem;
-import ashitakalax.com.popularmovies.movie.TrailerArrayAdapter;
 import ashitakalax.com.popularmovies.movie.TrailerItem;
 
 
@@ -227,18 +223,20 @@ public class MovieDetailFragment extends Fragment implements View.OnClickListene
         if(!isMovieFavorite())
         {
             //add to list of favorites and update shared preferences
-            favoriteMovies.add(this.mItem.getId()+"");
+            favoriteMovies.add(this.mItem.getId() + "");
 
             SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
             editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-            editor.apply();
+            editor.commit();
             this.updateFavoriteButtonText(true);
         }
         else
         {
 //            String[] favoriteIdStrs = new String[];
 //            favoriteMovies.toArray(favoriteIdStrs);
-            List<String> favoriteMovieArrayList =  Arrays.asList((String[])favoriteMovies.toArray());  //Arrays.asList(favoriteIdStrs);// new ArrayList<String>(favoriteIdStrs);
+            List<String> favoriteMovieArrayList =  new ArrayList<String>();
+            String[] favoriteIdStrs = favoriteMovies.toArray(new String[favoriteMovies.size()]);
+            favoriteMovieArrayList.addAll(Arrays.asList(favoriteIdStrs));
             //favoriteMovieArrayList.addAll(favoriteIdStrs);
             for(int i = 0; i < favoriteMovieArrayList.size(); i++)
             {
@@ -258,7 +256,7 @@ public class MovieDetailFragment extends Fragment implements View.OnClickListene
             //save back into shared preferences
             SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
             editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-            editor.apply();
+            editor.commit();
 
             this.updateFavoriteButtonText(false);
 

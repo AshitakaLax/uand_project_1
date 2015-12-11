@@ -1,5 +1,6 @@
 package ashitakalax.com.popularmovies;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import ashitakalax.com.popularmovies.movie.MovieArrayAdapter;
 import ashitakalax.com.popularmovies.movie.MovieItem;
@@ -50,6 +53,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
     private final String SORT_BY_POPULARITY = "sort_by_popularity";
     private final String SORT_BY_RATING = "sort_by_rating";
+    private final String SORT_BY_FAVORITES = "sort_by_favorites";
     private final String SORT_TYPE = "sort_type";
     public static final String MOVIE_SHARE_PREF_FILE = "movie_shared_preferences";
     private final String MOVIE_ITEM_LIST = "movie_item_list";
@@ -63,7 +67,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
     private  GridView mGridView;
     private TextView mNoInternetTextView;
     private List<MovieItem> mMovieItemList;
-
+    private List<MovieItem> mFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +163,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
                 this.mSortTypeStr = SORT_BY_RATING;
                 break;
             case R.id.sort_favories:
-                this.mSortTypeStr = SORT_BY_RATING;
+                this.mSortTypeStr = SORT_BY_FAVORITES;
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -170,7 +174,22 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
         if(isNetworkAvailable()) {
             mNoInternetTextView.setVisibility(View.INVISIBLE);
-            new downloadMovieList().execute(this.mSortTypeStr);
+            if(this.mSortTypeStr != SORT_BY_FAVORITES) {
+                new downloadMovieList().execute(this.mSortTypeStr);
+            }
+            else
+            {
+                SharedPreferences prefs = getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
+                //this is a string set of movie id's only not of anything else
+                Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
+
+                for(String str : favoriteMovies)
+                {
+                    MovieItem tempItem = new MovieItem();
+                    tempItem.setId(Integer.parseInt(str));
+                    new downloadMovieDetails().execute(tempItem);
+                }
+            }
         }
         else
             mNoInternetTextView.setVisibility(View.VISIBLE);
@@ -351,7 +370,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
         protected MovieItem doInBackground(MovieItem... movie) {
 
             //this will query the movie info
-            MovieItem.queryMovieDetails(movie[0]);
+            MovieItem.queryMovieDetails(movie[0].getId()+"");
 
 
             return movie[0];

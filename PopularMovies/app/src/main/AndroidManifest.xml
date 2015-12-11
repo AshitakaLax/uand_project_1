@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ashitakalax.com.popularmovies">
-    <!--This is to fetch json and image data -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <!--This is to optimize whether we should even attempt to fetch data,
-    after GCM implement this should be removed -->
+
+    <!-- This is to fetch json and image data -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--
+    This is to optimize whether we should even attempt to fetch data,
+    after GCM implement this should be removed
+    -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
@@ -24,7 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-
             android:name=".MovieDetailActivity"
             android:label="@string/title_movie_detail"
             android:theme="@style/AppTheme.NoActionBar">
@@ -32,6 +34,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MovieGridActivity" />
         </activity>
+
+        <provider
+            android:name=".movie.MovieProvider"
+            android:authorities="com.ashitakalax.popularmovies.data.MovieProvider"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>

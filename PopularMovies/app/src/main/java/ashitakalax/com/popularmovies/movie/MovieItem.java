@@ -214,16 +214,52 @@ public class MovieItem implements Parcelable{
 
     }
 
-    public static boolean queryMovieDetails(MovieItem movieItem)
+    public static MovieItem getMovieItemFromJson(String movieJsonStr) throws JSONException
+    {
+        // list of
+        final String MOVIE_LIST = "results";
+        final String MOVIE_ID = "id";
+        final String MOVIE_TITLE = "original_title";
+        final String MOVIE_OVERVIEW = "overview";
+        final String MOVIE_RATING = "vote_average";
+        final String MOVIE_RELEASE_DATE = "release_date";
+        final String MOVIE_POSTER_URL = "poster_path";
+
+        JSONObject movieQueryJson = new JSONObject(movieJsonStr);
+        //JSONArray movieArray = movieQueryJson.getJSONArray(MOVIE_LIST);
+
+//            JSONObject movieJson = movieArray.getJSONObject(i);
+            MovieItem item = new MovieItem();
+
+            item.setId(movieQueryJson.getInt(MOVIE_ID));
+            item.setPlotSynopsis(movieQueryJson.getString(MOVIE_OVERVIEW));
+            item.setImageUrl(movieQueryJson.getString(MOVIE_POSTER_URL));
+            item.setOriginalTitle(movieQueryJson.getString(MOVIE_TITLE));
+            item.setUserRating(movieQueryJson.getDouble(MOVIE_RATING));
+            item.setReleaseDate(movieQueryJson.getString(MOVIE_RELEASE_DATE));
+            item.setOriginalTitle(movieQueryJson.getString(MOVIE_TITLE));
+            //this is already running on the background thread we technically skip on another
+            //background task from running
+
+            //foreach of these fetch the trailers and reviews for each movie
+
+
+        return item;
+
+    }
+
+    public static MovieItem queryMovieDetails(String id)
     {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String movieDetailJsonStr = null;
         ArrayList<TrailerItem> trailerItemList = null;
+        MovieItem resultMovie = new MovieItem();
+
         try
         {
 
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieItem.getId() + "?";
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + id + "?";
             final String APPID_PARAM = "api_key";
             final String MOVIE_DATA_PARAM = "append_to_response";
             final String MOVIE_DATA_VALUE = "videos,reviews";
@@ -243,7 +279,7 @@ public class MovieItem implements Parcelable{
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
                 // Nothing to do.
-                return false;
+                return null;
             }
             reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -258,7 +294,7 @@ public class MovieItem implements Parcelable{
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                return false;
+                return null;
             }
             movieDetailJsonStr = buffer.toString();
 
@@ -281,12 +317,13 @@ public class MovieItem implements Parcelable{
         }
         //parse the json string into a movieItem list
         try {
-            movieItem.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
-            movieItem.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
+            resultMovie = getMovieItemFromJson(movieDetailJsonStr);
+            resultMovie.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
+            resultMovie.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return true;
+        return resultMovie;
     }
 
     private static ArrayList<TrailerItem> queryTrailerList(int movieId)
