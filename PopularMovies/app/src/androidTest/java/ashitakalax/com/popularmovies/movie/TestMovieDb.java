@@ -370,7 +370,7 @@ public class TestMovieDb extends AndroidTestCase{
 
         // Second Step: Create ContentValues of what you want to insert
         // (you can use the createNorthPoleLocationValues if you wish)
-        ContentValues testValues = TestUtilities.createAwesomeReviews();
+        ContentValues testValues = TestUtilities.createAwesomeTrailer();
 
         // Third Step: Insert ContentValues into database and get a row ID back
         long trailerRowId;

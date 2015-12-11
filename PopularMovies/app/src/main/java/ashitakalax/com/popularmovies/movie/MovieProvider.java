@@ -2,7 +2,10 @@ package ashitakalax.com.popularmovies.movie;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 public class MovieProvider extends ContentProvider {
@@ -10,9 +13,54 @@ public class MovieProvider extends ContentProvider {
     public static final String AUTHORITY ="com.ashitakalax.popularmovies.MovieProvider";
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private MovieDbHelper mOpenHelper;
+
+
+    static final int MOVIES = 100;
+    static final int MOVIES_WITH_REVIEWS = 101;
+    static final int MOVIES_WITH_TRAILERS = 102;
+    static final int TRAILERS = 300;
+    static final int REVIEWS = 400;//do these mean anything?
+
+    private static final SQLiteQueryBuilder sReviewsByMovieIdQueryBuilder;
+
+    static{
+        sReviewsByMovieIdQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //weather INNER JOIN location ON weather.location_id = location._id
+        sReviewsByMovieIdQueryBuilder.setTables(
+                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        MovieContract.ReviewEntry.TABLE_NAME +
+                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+                        "." + MovieContract.MovieEntry.COLUMN_REVIEW_KEY +
+                        " = " + MovieContract.ReviewEntry.TABLE_NAME +
+                        "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY);
+    }
+
+
+
+
+
+
+
     public MovieProvider() {
     }
 
+
+    static UriMatcher buildUriMatcher() {
+        // 1) The code passed into the constructor represents the code to return for the root
+        // URI.  It's common to use NO_MATCH as the code for this case. Add the constructor below.
+
+
+        // 2) Use the addURI function to match each of the types.  Use the constants from
+        // WeatherContract to help define the types to the UriMatcher.
+
+
+        // 3) Return the new matcher!
+        return null;
+    }
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         // Implement this to handle requests to delete one or more rows.
@@ -22,27 +70,91 @@ public class MovieProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         // TODO: Implement this to handle requests for the MIME type of the data
-        // at the given URI.
-        throw new UnsupportedOperationException("Not yet implemented");
+        // Use the Uri Matcher to determine what kind of URI this is.
+        final int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            //todo
+//            case MOVIES_WITH_REVIEWS:
+//                return MovieContract.MovieEntry.CONTENT_TYPE;
+//            case MOVIES_WITH_TRAILERS:
+//                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIES:
+                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case REVIEWS:
+                return MovieContract.ReviewEntry.CONTENT_TYPE;
+            case TRAILERS:
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        // TODO: Implement this to handle requests to insert a new row.
-        throw new UnsupportedOperationException("Not yet implemented");
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch (match) {
+            case MOVIES: {
+//                normalizeDate(values);
+                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return returnUri;
     }
 
     @Override
     public boolean onCreate() {
-        // TODO: Implement this to initialize your content provider on startup.
-        return false;
+        this.mOpenHelper = new MovieDbHelper(getContext());
+        return true;
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        // TODO: Implement this to handle query requests from clients.
-        throw new UnsupportedOperationException("Not yet implemented");
+        // Here's the switch statement that, given a URI, will determine what kind of request it is,
+        // and query the database accordingly.
+        Cursor retCursor;
+        switch (sUriMatcher.match(uri)) {
+
+            //todo First query movies then jump to querying the combination of them.
+//            case MOVIES_WITH_REVIEWS:
+//            {
+//                retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
+//                break;
+//            }
+//            case MOVIES_WITH_TRAILERS: {
+//                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
+//                break;
+//            }
+            case MOVIES: {
+                retCursor = null;
+                break;
+            }
+            case TRAILERS: {
+                retCursor = null;
+                break;
+            }
+            case REVIEWS: {
+                retCursor = null;
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return retCursor;
     }
 
     @Override
@@ -51,4 +163,6 @@ public class MovieProvider extends ContentProvider {
         // TODO: Implement this to handle requests to update one or more rows.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+    //bulk insert when we get closer
 }
