@@ -37,9 +37,9 @@
 
         <provider
             android:name=".movie.MovieProvider"
-            android:authorities="com.ashitakalax.popularmovies.data.MovieProvider"
+            android:authorities="ashitakalax.com.popularmovies"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true"/>
     </application>
 
 </manifest>

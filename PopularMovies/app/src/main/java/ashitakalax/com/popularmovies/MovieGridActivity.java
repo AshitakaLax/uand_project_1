@@ -347,7 +347,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
             }
             //parse the json string into a movieItem list
             try {
-                this.movieItemList = MovieItem.getMoviesFromJson(movieJsonStr);
+                this.movieItemList = MovieItem.getMoviesFromJson(getApplicationContext(),movieJsonStr);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

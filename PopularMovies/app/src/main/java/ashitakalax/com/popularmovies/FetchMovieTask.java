@@ -1,5 +1,6 @@
 package ashitakalax.com.popularmovies;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -26,11 +27,19 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
  */
 public class FetchMovieTask  extends AsyncTask<String, Void, String>
 {
-    private final String SORT_BY_POPULARITY = "sort_by_popularity";
-    private final String SORT_BY_RATING = "sort_by_rating";
-    private final String SORT_BY_FAVORITES = "sort_by_favorites";
-    private final String SORT_TYPE = "sort_type";
-    List<MovieItem> movieItemList = null;
+    public static final String SORT_BY_POPULARITY = "sort_by_popularity";
+    public static final String SORT_BY_RATING = "sort_by_rating";
+    public static final String SORT_BY_FAVORITES = "sort_by_favorites";
+    public static final String SORT_TYPE = "sort_type";
+    public List<MovieItem> movieItemList = null;
+    private Context mContext;
+
+    public FetchMovieTask(Context context)
+    {
+        this.mContext = context;
+    }
+
+
     @Override
     protected String doInBackground(String... sortType) {
 
@@ -103,7 +112,7 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
         }
         //parse the json string into a movieItem list
         try {
-            this.movieItemList = MovieItem.getMoviesFromJson(movieJsonStr);
+            this.movieItemList = MovieItem.getMoviesFromJson(this.mContext, movieJsonStr);
         } catch (JSONException e) {
             e.printStackTrace();
         }

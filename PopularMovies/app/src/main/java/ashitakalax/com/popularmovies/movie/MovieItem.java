@@ -1,5 +1,7 @@
 package ashitakalax.com.popularmovies.movie;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
@@ -18,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import ashitakalax.com.popularmovies.BuildConfig;
 
@@ -174,7 +177,7 @@ public class MovieItem implements Parcelable{
 
     }
 
-    public static List<MovieItem> getMoviesFromJson(String movieJsonStr) throws JSONException
+    public static List<MovieItem> getMoviesFromJson(Context context, String movieJsonStr) throws JSONException
     {
         // list of
         final String MOVIE_LIST = "results";
@@ -189,6 +192,12 @@ public class MovieItem implements Parcelable{
         JSONArray movieArray = movieQueryJson.getJSONArray(MOVIE_LIST);
 
         List<MovieItem> movieItemList = new ArrayList<MovieItem>();
+
+        //it would be best to make the reviews and the trailers nullable
+        //then to populate them after
+        Vector<ContentValues> movieVector = new Vector<ContentValues>(movieArray.length());
+
+
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject movieJson = movieArray.getJSONObject(i);
             MovieItem item = new MovieItem();
@@ -199,7 +208,19 @@ public class MovieItem implements Parcelable{
             item.setOriginalTitle(movieJson.getString(MOVIE_TITLE));
             item.setUserRating(movieJson.getDouble(MOVIE_RATING));
             item.setReleaseDate(movieJson.getString(MOVIE_RELEASE_DATE));
-            item.setOriginalTitle(movieJson.getString(MOVIE_TITLE));
+
+
+            ContentValues movieValues = new ContentValues();
+
+            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, item.getId());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, item.getPlotSynopsis());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, item.getImageUrl());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, item.getOriginalTitle());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, item.getUserRating());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, item.getReleaseDate());
+
+
+            movieVector.add(movieValues);
             //this is already running on the background thread we technically skip on another
             //background task from running
 
@@ -208,6 +229,12 @@ public class MovieItem implements Parcelable{
 //            item.setReviews(MovieItem.queryReviewList(item.getId()));
 //            MovieItem.queryMovieDetails(item);
             movieItemList.add(item);
+        }
+        int insertResult = 0;
+        if ( movieVector.size() > 0 ) {
+            ContentValues[] movieCVArray = new ContentValues[movieVector.size()];
+            movieVector.toArray(movieCVArray);
+            insertResult = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, movieCVArray);
         }
 
         return movieItemList;

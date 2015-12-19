@@ -10,8 +10,6 @@ import android.net.Uri;
 
 public class MovieProvider extends ContentProvider {
 
-    public static final String AUTHORITY ="com.ashitakalax.popularmovies.MovieProvider";
-    static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDbHelper mOpenHelper;
@@ -50,16 +48,19 @@ public class MovieProvider extends ContentProvider {
 
 
     static UriMatcher buildUriMatcher() {
-        // 1) The code passed into the constructor represents the code to return for the root
-        // URI.  It's common to use NO_MATCH as the code for this case. Add the constructor below.
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = MovieContract.CONTENT_AUTHORITY;
 
-
-        // 2) Use the addURI function to match each of the types.  Use the constants from
-        // WeatherContract to help define the types to the UriMatcher.
-
-
-        // 3) Return the new matcher!
-        return null;
+        // For each type of URI you want to add, create a corresponding code.
+        matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILERS);
+        matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEWS);
+//        matcher.addURI(authority, WeatherContract.PATH_WEATHER, WEATHER);
+//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
+//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
+//
+//        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        return matcher;
     }
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
@@ -139,15 +140,15 @@ public class MovieProvider extends ContentProvider {
 //                break;
 //            }
             case MOVIES: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.MovieEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
                 break;
             }
             case TRAILERS: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.TrailerEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);;
                 break;
             }
             case REVIEWS: {
-                retCursor = null;
+                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.ReviewEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);;
                 break;
             }
             default:
@@ -165,4 +166,34 @@ public class MovieProvider extends ContentProvider {
     }
 
     //bulk insert when we get closer
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match)
+        {
+            case MOVIES:
+                db.beginTransaction();
+                int returnCount = 0;
+                try{
+                    for(ContentValues value : values)
+                    {
+                        long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if(_id != -1)
+                        {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            default:
+                return super.bulkInsert(uri, values);
+        }
+    }
 }

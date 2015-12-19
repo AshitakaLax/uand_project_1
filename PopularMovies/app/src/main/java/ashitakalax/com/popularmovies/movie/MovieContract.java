@@ -19,7 +19,7 @@ public class MovieContract {
     // content authority is the package name for the app, which is guaranteed to be unique on the
     // device.
 
-    public static final String CONTENT_AUTHORITY ="com.ashitakalax.popularmovies.MovieProvider";
+    public static final String CONTENT_AUTHORITY ="ashitakalax.com.popularmovies";
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // Possible paths (appended to base content URI for possible URI's)

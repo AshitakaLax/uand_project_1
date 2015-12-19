@@ -67,7 +67,7 @@ public class FetchMovieDetailsTask extends AsyncTask<MovieItem, Void, MovieItem>
 //
 //            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 //            context.startActivity(intent);
-        }
+        //}
 //            //maybe update the data
 //            //we will want to begin the query for the movie details, then go to the fragment
 //            Bundle arguments = new Bundle();
