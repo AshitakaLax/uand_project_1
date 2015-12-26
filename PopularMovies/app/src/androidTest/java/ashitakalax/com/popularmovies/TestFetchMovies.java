@@ -60,12 +60,10 @@ public class TestFetchMovies extends AndroidTestCase{
 
                 }
                 assertTrue(movieCursor.getInt(0) != 0);
-                assertTrue(movieCursor.getInt(1) == 0);//these should be 0 after the first query
-                assertTrue(movieCursor.getInt(2) == 0);//these should be 0 after the first query
-                assertFalse(movieCursor.getString(3).isEmpty());
+                assertFalse(movieCursor.getString(1).isEmpty());
+                assertFalse(movieCursor.getString(2).isEmpty());
+                assertTrue(movieCursor.getFloat(3) != 0.0);
                 assertFalse(movieCursor.getString(4).isEmpty());
-                assertTrue(movieCursor.getFloat(5) != 0.0);
-                assertFalse(movieCursor.getString(6).isEmpty());
 
 
             } else {

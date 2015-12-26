@@ -25,6 +25,8 @@ public class MovieDbHelper extends SQLiteOpenHelper
     public MovieDbHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+
     }
 
     @Override
@@ -40,7 +42,15 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 MovieEntry.COLUMN_OVERVIEW + " TEXT," +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL  NOT NULL," +
                 MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL," +
-                MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL,);";
+                MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL" +
+                " );";
+//                // the ID of the location entry associated with this weather data
+//                // Set up the location column as a foreign key to location table.
+//                " FOREIGN KEY (" + MovieEntry.COLUMN_VIDEOS_KEY + ") REFERENCES " +
+//                TrailerEntry.TABLE_NAME + " (" + TrailerEntry._ID + "), " +
+//
+//                " FOREIGN KEY (" + MovieEntry.COLUMN_REVIEW_KEY + ") REFERENCES " +
+//                ReviewEntry.TABLE_NAME + " (" + ReviewEntry._ID + "));";
 
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
                 // Why AutoIncrement here, and not above?

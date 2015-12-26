@@ -106,7 +106,7 @@ public class MovieProvider extends ContentProvider {
                 break;
             case TRAILERS:
                 rowsDeleted = db.delete(
-                        MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
+                        MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -126,10 +126,10 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             //todo
-//            case MOVIES_WITH_REVIEWS:
-//                return MovieContract.MovieEntry.CONTENT_TYPE;
-//            case MOVIES_WITH_TRAILERS:
-//                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIES_WITH_REVIEWS:
+                return MovieContract.ReviewEntry.CONTENT_ITEM_TYPE;
+            case MOVIES_WITH_TRAILERS:
+                return MovieContract.TrailerEntry.CONTENT_ITEM_TYPE;
             case MOVIES:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
             case REVIEWS:
@@ -150,10 +150,25 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             case MOVIES: {
-//                normalizeDate(values);
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case TRAILERS: {
+                long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case REVIEWS: {
+                long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -211,8 +226,31 @@ public class MovieProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdated;
+
+        switch (match) {
+            case MOVIES:
+                rowsUpdated = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case TRAILERS:
+                rowsUpdated = db.update(MovieContract.TrailerEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case REVIEWS:
+                rowsUpdated = db.update(MovieContract.ReviewEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
     }
 
     //bulk insert when we get closer
