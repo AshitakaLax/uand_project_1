@@ -1,5 +1,7 @@
 package ashitakalax.com.popularmovies.movie;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * todo add file Description
@@ -103,7 +106,8 @@ public class TrailerItem implements Parcelable{
         parcel.writeString(this.mSite);
     }
 
-    public static ArrayList<TrailerItem> getTrailersFromJson(String movieJsonStr) throws JSONException
+//    public static ArrayList<TrailerItem> getTrailersFromJson(String movieJsonStr) throws JSONException
+    public static String getTrailersFromJson(Context context, String movieJsonStr, int MovieId) throws JSONException
     {
         // list of
         final String VIDEOS_LIST = "videos";
@@ -116,21 +120,41 @@ public class TrailerItem implements Parcelable{
         JSONObject movieQueryJson = new JSONObject(movieJsonStr);
         movieQueryJson = movieQueryJson.getJSONObject(VIDEOS_LIST);
 
-        JSONArray movieArray = movieQueryJson.getJSONArray(TRAILER_LIST);
+        //get the movie id here
 
+        JSONArray trailerArray = movieQueryJson.getJSONArray(TRAILER_LIST);
+
+        Vector<ContentValues> trailerVector = new Vector<ContentValues>(trailerArray.length());
         ArrayList<TrailerItem> movieItemList = new ArrayList<TrailerItem>();
-        for (int i = 0; i < movieArray.length(); i++) {
-            JSONObject movieJson = movieArray.getJSONObject(i);
+        for (int i = 0; i < trailerArray.length(); i++) {
+            JSONObject movieJson = trailerArray.getJSONObject(i);
             TrailerItem item = new TrailerItem();
 
             item.setId(movieJson.getString(TRAILER_ID));
             item.setTitle(movieJson.getString(TRAILER_TITLE));
             item.setUrl(movieJson.getString(TRAILER_URL_KEY));
             item.setSite(movieJson.getString(TRAILER_HOST_SITE));
+
+            ContentValues trailerValues = new ContentValues();
+
+            trailerValues.put(MovieContract.TrailerEntry.COLUMN_MOVIE_KEY, MovieId);
+            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_ID, item.getId());
+            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_TITLE, item.getTitle());
+            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_URL, item.getUrl());
+            trailerValues.put(MovieContract.TrailerEntry.COLUMN_TRAILER_HOST, item.getSite());
+            trailerVector.add(trailerValues);
+
+
             movieItemList.add(item);
         }
-
-        return movieItemList;
+        int insertResult = 0;
+        if ( trailerVector.size() > 0 ) {
+            ContentValues[] trailerCVArray = new ContentValues[trailerVector.size()];
+            trailerVector.toArray(trailerCVArray);
+            insertResult = context.getContentResolver().bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, trailerCVArray);
+        }
+        //return the trailerId for the movie to be added to the database
+        return "";
 
     }
 }

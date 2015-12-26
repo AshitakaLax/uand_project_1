@@ -370,7 +370,7 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
         protected MovieItem doInBackground(MovieItem... movie) {
 
             //this will query the movie info
-            MovieItem.queryMovieDetails(movie[0].getId()+"");
+           // MovieItem.queryMovieDetails(movie[0].getId()+"");
 
 
             return movie[0];

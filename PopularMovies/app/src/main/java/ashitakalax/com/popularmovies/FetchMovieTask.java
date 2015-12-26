@@ -34,6 +34,8 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
     public List<MovieItem> movieItemList = null;
     private Context mContext;
 
+    private FetchMovieDetailsTask fetchMovieDetailsTask;
+
     public FetchMovieTask(Context context)
     {
         this.mContext = context;
@@ -131,10 +133,14 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
 //        mNoInternetTextView.setVisibility(View.INVISIBLE);
 //
 //        setupArrayAdapter(this.movieItemList);
-        for(MovieItem item :this.movieItemList)
-        {
-            //this will do the other query to get the rest of the data
-            new FetchMovieDetailsTask().execute(item);
-        }
+        this.fetchMovieDetailsTask = new FetchMovieDetailsTask(this.mContext);
+        this.fetchMovieDetailsTask.execute(this.movieItemList);
+
     }
+
+    public FetchMovieDetailsTask getSubTask()
+    {
+        return this.fetchMovieDetailsTask;
+    }
+
 }

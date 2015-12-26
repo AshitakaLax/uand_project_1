@@ -209,6 +209,10 @@ public class MovieItem implements Parcelable{
             item.setUserRating(movieJson.getDouble(MOVIE_RATING));
             item.setReleaseDate(movieJson.getString(MOVIE_RELEASE_DATE));
 
+            //here we don't want to add it to the database yet, we want to wait till we get both the reviews
+            //and the trailers for the movie.
+            //but we do want to do a check here to see if we have the reviews and the trailers
+            //in the database
 
             ContentValues movieValues = new ContentValues();
 
@@ -275,7 +279,7 @@ public class MovieItem implements Parcelable{
 
     }
 
-    public static MovieItem queryMovieDetails(String id)
+    public static MovieItem queryMovieDetails(Context context, MovieItem movie)
     {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -283,17 +287,19 @@ public class MovieItem implements Parcelable{
         ArrayList<TrailerItem> trailerItemList = null;
         MovieItem resultMovie = new MovieItem();
 
+        //we will want 2 vectors one for trailers and one for reviews
+
         try
         {
 
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + id + "?";
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movie.getId() + "?";
             final String APPID_PARAM = "api_key";
             final String MOVIE_DATA_PARAM = "append_to_response";
             final String MOVIE_DATA_VALUE = "videos,reviews";
 
 
             Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
+                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)
                     .appendQueryParameter(MOVIE_DATA_PARAM, MOVIE_DATA_VALUE)
                     .build();
 
@@ -345,8 +351,11 @@ public class MovieItem implements Parcelable{
         //parse the json string into a movieItem list
         try {
             resultMovie = getMovieItemFromJson(movieDetailJsonStr);
-            resultMovie.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
-            resultMovie.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
+            String resultStr = TrailerItem.getTrailersFromJson(context, movieDetailJsonStr,resultMovie.getId());
+            resultStr = ReviewItem.getReviewsFromJson(context, movieDetailJsonStr, resultMovie.getId());
+            //resultMovie.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
+
+//            resultMovie.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -419,12 +428,12 @@ public class MovieItem implements Parcelable{
             }
         }
         //parse the json string into a movieItem list
-        try {
-            trailerItemList = TrailerItem.getTrailersFromJson(trailerJsonStr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return trailerItemList;
+//        try {
+//            trailerItemList = TrailerItem.getTrailersFromJson( trailerJsonStr);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+        return null;//trailerItemList;
     }
 
     private static ArrayList<ReviewItem> queryReviewList(int movieId) {

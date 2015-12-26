@@ -27,7 +27,7 @@ public class MovieProvider extends ContentProvider {
         sReviewsByMovieIdQueryBuilder = new SQLiteQueryBuilder();
 
         //This is an inner join which looks like
-        //weather INNER JOIN location ON weather.location_id = location._id
+        //movie INNER JOIN reviews ON movie.review_id = reviews.review_id
         sReviewsByMovieIdQueryBuilder.setTables(
                 MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
                         MovieContract.ReviewEntry.TABLE_NAME +
@@ -38,13 +38,37 @@ public class MovieProvider extends ContentProvider {
     }
 
 
-
-
-
-
+    //location.location_setting = ?
+    //reviews.movieId = ?
+    private static final String sMovieReviewSelection =
+            MovieContract.ReviewEntry.TABLE_NAME+
+                    "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " = ? ";
 
     public MovieProvider() {
     }
+
+    private Cursor getReviewsByMovieId(Uri uri, String[] projection, String sortOrder) {
+        String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        //don't think this is needed
+//        long startDate = MovieContract.MovieEntry.getStartDateFromUri(uri);
+//        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
+
+        String[] selectionArgs;
+        String selection;
+
+        selection = sMovieReviewSelection;
+        selectionArgs = new String[]{movieIdStr};
+
+        return sReviewsByMovieIdQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
 
 
     static UriMatcher buildUriMatcher() {
@@ -64,8 +88,32 @@ public class MovieProvider extends ContentProvider {
     }
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted;
+        // this makes delete all rows return the number of rows deleted
+        if ( null == selection ) selection = "1";
+        switch (match) {
+            case MOVIES:
+                rowsDeleted = db.delete(
+                        MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case REVIEWS:
+                rowsDeleted = db.delete(
+                        MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case TRAILERS:
+                rowsDeleted = db.delete(
+                        MovieContract.ReviewEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        // Because a null deletes all rows
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     @Override
@@ -130,11 +178,11 @@ public class MovieProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
 
             //todo First query movies then jump to querying the combination of them.
-//            case MOVIES_WITH_REVIEWS:
-//            {
-//                retCursor = getWeatherByLocationSettingAndDate(uri, projection, sortOrder);
-//                break;
-//            }
+            case MOVIES_WITH_REVIEWS:
+            {
+                retCursor = getReviewsByMovieId(uri, projection, sortOrder);
+                break;
+            }
 //            case MOVIES_WITH_TRAILERS: {
 //                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
 //                break;
@@ -144,11 +192,11 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             case TRAILERS: {
-                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.TrailerEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);;
+                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.TrailerEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
                 break;
             }
             case REVIEWS: {
-                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.ReviewEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);;
+                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.ReviewEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
                 break;
             }
             default:
@@ -171,11 +219,12 @@ public class MovieProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+
+        int returnCount = 0;
         switch (match)
         {
             case MOVIES:
                 db.beginTransaction();
-                int returnCount = 0;
                 try{
                     for(ContentValues value : values)
                     {
@@ -192,6 +241,43 @@ public class MovieProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
+            case TRAILERS:
+                db.beginTransaction();
+                try{
+                    for(ContentValues value : values)
+                    {
+                        long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, value);
+                        if(_id != -1)
+                        {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case REVIEWS:
+                db.beginTransaction();
+                try{
+                    for(ContentValues value : values)
+                    {
+                        long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, value);
+                        if(_id != -1)
+                        {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                }
+                finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
             default:
                 return super.bulkInsert(uri, values);
         }

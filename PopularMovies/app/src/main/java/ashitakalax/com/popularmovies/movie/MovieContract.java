@@ -64,6 +64,21 @@ public class MovieContract {
         }
 
         //todo we need more items here in order to support more interaction
+
+        /**
+         * This is the uri for querying a specific list of reviews for a movie
+         * @param movieId of the reviwes to be returns
+         * @return uri for the query
+         */
+        public static Uri buildMovieReview(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        }
+
+
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
+        }
+
     }
 
     public static final class TrailerEntry implements BaseColumns{

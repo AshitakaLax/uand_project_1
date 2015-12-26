@@ -27,17 +27,31 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
  * @version 1
  * @since 12/10/2015
  */
-public class FetchMovieDetailsTask extends AsyncTask<MovieItem, Void, MovieItem>
+public class FetchMovieDetailsTask extends AsyncTask<List<MovieItem>, Void, MovieItem>
 {
+    private Context mContext;
+
+    public FetchMovieDetailsTask(Context context)
+    {
+        this.mContext = context;
+    }
+
     @Override
-    protected MovieItem doInBackground(MovieItem... movie) {
+    protected MovieItem doInBackground(List<MovieItem>... movieList) {
 
         //this will query the movie info
-        MovieItem.queryMovieDetails(movie[0].getId()+"");
+
+        //this is a temp approach till we get the GCM working
+        for(int i = 0; i < movieList[0].size(); i++)
+        {
+            MovieItem.queryMovieDetails(this.mContext, movieList[0].get(i));
+        }
+
+//        MovieItem.queryMovieDetails(movieList[0].get(0).getId()+"");
         //here is where we load the data
 
 
-        return movie[0];
+        return null;
     }
     protected void onPostExecute(MovieItem movie) {
         //to be decided

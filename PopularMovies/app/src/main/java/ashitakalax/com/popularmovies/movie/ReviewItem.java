@@ -1,5 +1,7 @@
 package ashitakalax.com.popularmovies.movie;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * todo add file Description
@@ -134,6 +137,56 @@ public class ReviewItem implements Parcelable{
 
         return movieItemList;
 
+    }
+
+    public static String getReviewsFromJson(Context context, String movieJsonStr, int MovieId) throws JSONException
+    {
+        // list of
+
+        final String REVIEWS_RESULTS = "reviews";
+        final String REVIEW_LIST = "results";
+        final String REVIEW_ID = "id";
+        final String REVIEW_AUTHOR = "author";
+        final String REVIEW_CONTENT = "content";
+        final String REVIEW_URL = "url";
+
+        JSONObject movieQueryJson = new JSONObject(movieJsonStr);
+        movieQueryJson = movieQueryJson.getJSONObject(REVIEWS_RESULTS);
+
+        //get the movie id here
+
+        JSONArray reviewArray = movieQueryJson.getJSONArray(REVIEW_LIST);
+
+        Vector<ContentValues> reviewVector = new Vector<ContentValues>(reviewArray.length());
+        ArrayList<ReviewItem> reviewItemList = new ArrayList<ReviewItem>();
+        for (int i = 0; i < reviewArray.length(); i++) {
+            JSONObject movieJson = reviewArray.getJSONObject(i);
+            ReviewItem item = new ReviewItem();
+
+            item.setId(movieJson.getString(REVIEW_ID));
+            item.setAuthor(movieJson.getString(REVIEW_AUTHOR));
+            item.setReview(movieJson.getString(REVIEW_CONTENT));
+            item.setUrl(movieJson.getString(REVIEW_URL));
+
+            ContentValues reviewValues = new ContentValues();
+
+            reviewValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY, MovieId);
+            reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_ID, item.getId());
+            reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_AUTHOR, item.getAuthor());
+            reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_CONTENT, item.getReview());
+            reviewValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW_URL, item.getUrl());
+            reviewVector.add(reviewValues);
+
+            reviewItemList.add(item);
+        }
+        int insertResult = 0;
+        if ( reviewVector.size() > 0 ) {
+            ContentValues[] reviewCVArray = new ContentValues[reviewVector.size()];
+            reviewVector.toArray(reviewCVArray);
+            insertResult = context.getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, reviewCVArray);
+        }
+        //return the trailerId for the movie to be added to the database
+        return "";
     }
 }
 
