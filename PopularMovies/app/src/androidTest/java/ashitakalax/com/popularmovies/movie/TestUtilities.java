@@ -27,7 +27,7 @@ import java.util.Set;
  */
 public class TestUtilities extends AndroidTestCase {
     static final String TEST_LOCATION = "99705";
-    static final String TEST_MOVIE_ID = "99705";
+    static final long TEST_MOVIE_ID = 99705;
     static final String TEST_TRAILER_ID = "AC523KB";
     static final String TEST_REVIEW_ID = "BBEC3KB";
     static final long TEST_DATE = 1419033600L;  // December 20th, 2014
@@ -54,10 +54,8 @@ public class TestUtilities extends AndroidTestCase {
     /*
         Students: Use this to create some default weather values for your database tests.
      */
-    static ContentValues createAwesomeMovieValues(long reviewRowId, long trailerRowId) {
+    static ContentValues createAwesomeMovieValues() {
         ContentValues weatherValues = new ContentValues();
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_REVIEW_KEY, reviewRowId);
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_VIDEOS_KEY, trailerRowId);
         weatherValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, TEST_MOVIE_ID);
         weatherValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, "AWESOME TO THE MAX");
         weatherValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "This is the best movie ever");
@@ -99,21 +97,57 @@ public class TestUtilities extends AndroidTestCase {
         return testValues;
     }
 
-    /*
-        Students: You can uncomment this function once you have finished creating the
-        LocationEntry part of the WeatherContract as well as the WeatherDbHelper.
-     */
     static long insertAwesomeMovieValues(Context context) {
         // insert our test records into the database
         MovieDbHelper dbHelper = new MovieDbHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestUtilities.createAwesomeTrailer();
+        ContentValues testValues = TestUtilities.createAwesomeMovieValues();
 
         long locationRowId;
         locationRowId = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, testValues);
 
         // Verify we got a row back.
         assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
+
+        return locationRowId;
+    }
+
+    /**
+     * inserts the reviews into the review table
+     * @param context needed to insert the values into the table
+     * @return the locationRowId
+     */
+    static long insertReviewsValues(Context context) {
+        // insert our test records into the database
+        MovieDbHelper dbHelper = new MovieDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createAwesomeReviews();
+
+        long locationRowId;
+        locationRowId = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert review Values", locationRowId != -1);
+
+        return locationRowId;
+    }
+
+    /**
+     * inserts the trailers into the trailer table
+     * @param context needed to insert the values into the table
+     * @return the locationRowId
+     */
+    static long insertTrailerValues(Context context) {
+        // insert our test records into the database
+        MovieDbHelper dbHelper = new MovieDbHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ContentValues testValues = TestUtilities.createAwesomeTrailer();
+
+        long locationRowId;
+        locationRowId = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, testValues);
+
+        // Verify we got a row back.
+        assertTrue("Error: Failure to insert Trailer Values", locationRowId != -1);
 
         return locationRowId;
     }

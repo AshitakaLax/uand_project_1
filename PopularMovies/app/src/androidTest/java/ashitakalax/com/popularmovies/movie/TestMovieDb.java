@@ -72,8 +72,6 @@ public class TestMovieDb extends AndroidTestCase{
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_POSTER_URL);
-        MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_REVIEW_KEY);
-        MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_VIDEOS_KEY);
 
         int columnNameIndex = c.getColumnIndex("name");
         do {
@@ -265,7 +263,7 @@ public class TestMovieDb extends AndroidTestCase{
 
         // Second Step: Create ContentValues of what you want to insert
         // (you can use the createAwesomeTrailer if you wish)
-        ContentValues testValues = TestUtilities.createAwesomeMovieValues(reviewRowId, trailerRowId);
+        ContentValues testValues = TestUtilities.createAwesomeMovieValues();
 
         // Third Step: Insert ContentValues into database and get a row ID back
         long locationRowId;

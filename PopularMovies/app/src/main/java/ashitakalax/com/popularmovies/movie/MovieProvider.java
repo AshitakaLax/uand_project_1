@@ -27,14 +27,14 @@ public class MovieProvider extends ContentProvider {
         sReviewsByMovieIdQueryBuilder = new SQLiteQueryBuilder();
 
         //This is an inner join which looks like
-        //movie INNER JOIN reviews ON movie.review_id = reviews.review_id
+        //reviews INNER JOIN movie ON reviews.review_id = movie.review_id
         sReviewsByMovieIdQueryBuilder.setTables(
-                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
-                        MovieContract.ReviewEntry.TABLE_NAME +
-                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
-                        "." + MovieContract.MovieEntry.COLUMN_REVIEW_KEY +
-                        " = " + MovieContract.ReviewEntry.TABLE_NAME +
-                        "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY);
+                MovieContract.ReviewEntry.TABLE_NAME + " INNER JOIN " +
+                        MovieContract.MovieEntry.TABLE_NAME +
+                        " ON " + MovieContract.ReviewEntry.TABLE_NAME +
+                        "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY +
+                        " = " + MovieContract.MovieEntry.TABLE_NAME +
+                        "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID);
     }
 
 
@@ -79,7 +79,9 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
         matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILERS);
         matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEWS);
-//        matcher.addURI(authority, WeatherContract.PATH_WEATHER, WEATHER);
+
+        matcher.addURI(authority, MovieContract.PATH_REVIEWS + "/*", MOVIES_WITH_REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_TRAILERS + "/*", MOVIES_WITH_TRAILERS);
 //        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
 //        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
 //

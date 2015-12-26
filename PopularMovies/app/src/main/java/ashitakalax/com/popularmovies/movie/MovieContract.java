@@ -54,9 +54,6 @@ public class MovieContract {
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_POSTER_URL = "poster_path";
-        //these are the keys into other remove tables these can be null
-        public static final String COLUMN_REVIEW_KEY = "reviews";
-        public static final String COLUMN_VIDEOS_KEY = "videos";
 
 
         public static Uri buildMovieUri(long id) {
@@ -64,15 +61,6 @@ public class MovieContract {
         }
 
         //todo we need more items here in order to support more interaction
-
-        /**
-         * This is the uri for querying a specific list of reviews for a movie
-         * @param movieId of the reviwes to be returns
-         * @return uri for the query
-         */
-        public static Uri buildMovieReview(String movieId) {
-            return CONTENT_URI.buildUpon().appendPath(movieId).build();
-        }
 
 
         public static String getMovieIdFromUri(Uri uri) {
@@ -99,6 +87,16 @@ public class MovieContract {
         public static Uri buildTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        /**
+         * This is the uri for querying a specific list of reviews for a movie
+         * @param movieId of the trailers to be returns
+         * @return uri for the query
+         */
+        public static Uri buildMovieTrailer(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        }
+
     }
 
     public static final class ReviewEntry implements BaseColumns{
@@ -119,6 +117,14 @@ public class MovieContract {
 
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+        /**
+         * This is the uri for querying a specific list of reviews for a movie
+         * @param movieId of the reviwes to be returns
+         * @return uri for the query
+         */
+        public static Uri buildMovieReview(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
         }
 
     }
