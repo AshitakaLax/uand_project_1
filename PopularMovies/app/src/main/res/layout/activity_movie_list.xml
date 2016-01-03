@@ -34,6 +34,8 @@
                 android:id="@+id/noInternetTextView"
                 android:layout_gravity="center"
                 android:visibility="invisible" />
+
+
             <include layout="@layout/movie_grid" />
 
         </FrameLayout>

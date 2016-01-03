@@ -37,7 +37,7 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 // forecasting, it's reasonable to assume the user will want information
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
-                MovieEntry.COLUMN_MOVIE_ID + " INTEGER PRIMARY KEY," +
+                MovieEntry._ID + " INTEGER PRIMARY KEY," +
                 MovieEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT," +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL  NOT NULL," +
@@ -58,8 +58,9 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 // forecasting, it's reasonable to assume the user will want information
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
+                TrailerEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 TrailerEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL," +
-                TrailerEntry.COLUMN_TRAILER_ID + " TEXT PRIMARY KEY," +//Keys are alpha numeric
+                TrailerEntry.COLUMN_TRAILER_ID + " TEXT," +//Keys are alpha numeric
                 TrailerEntry.COLUMN_TRAILER_TITLE + " TEXT NOT NULL," +
                 TrailerEntry.COLUMN_TRAILER_URL + " TEXT NOT NULL," +
                 TrailerEntry.COLUMN_TRAILER_HOST + " TEXT NOT NULL," +
@@ -74,8 +75,9 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 // forecasting, it's reasonable to assume the user will want information
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
+                ReviewEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +//these are integers
                 ReviewEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL," +//these are integers
-                ReviewEntry.COLUMN_REVIEW_ID + " TEXT PRIMARY KEY," +//keys are alpha numeric
+                ReviewEntry.COLUMN_REVIEW_ID + " TEXT," +//keys are alpha numeric
                 ReviewEntry.COLUMN_REVIEW_AUTHOR + " TEXT," +
                 ReviewEntry.COLUMN_REVIEW_URL + " TEXT," +
                 ReviewEntry.COLUMN_REVIEW_CONTENT + " TEXT," +

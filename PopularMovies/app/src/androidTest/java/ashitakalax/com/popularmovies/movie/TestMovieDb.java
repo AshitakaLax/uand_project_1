@@ -66,6 +66,7 @@ public class TestMovieDb extends AndroidTestCase{
 
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> MovieColumnHashSet = new HashSet<String>();
+        MovieColumnHashSet.add(MovieContract.MovieEntry._ID);
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_MOVIE_ID);
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE);
         MovieColumnHashSet.add(MovieContract.MovieEntry.COLUMN_OVERVIEW);
@@ -95,6 +96,7 @@ public class TestMovieDb extends AndroidTestCase{
 
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> TrailerColumnHashSet = new HashSet<String>();
+        TrailerColumnHashSet.add(MovieContract.TrailerEntry._ID);
         TrailerColumnHashSet.add(MovieContract.TrailerEntry.COLUMN_MOVIE_KEY);
         TrailerColumnHashSet.add(MovieContract.TrailerEntry.COLUMN_TRAILER_HOST);
         TrailerColumnHashSet.add(MovieContract.TrailerEntry.COLUMN_TRAILER_ID);
@@ -122,6 +124,7 @@ public class TestMovieDb extends AndroidTestCase{
 
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> ReviewColumnHashSet = new HashSet<String>();
+        ReviewColumnHashSet.add(MovieContract.ReviewEntry._ID);
         ReviewColumnHashSet.add(MovieContract.ReviewEntry.COLUMN_MOVIE_KEY);
         ReviewColumnHashSet.add(MovieContract.ReviewEntry.COLUMN_REVIEW_AUTHOR);
         ReviewColumnHashSet.add(MovieContract.ReviewEntry.COLUMN_REVIEW_CONTENT);
