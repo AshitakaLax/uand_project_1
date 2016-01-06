@@ -2,6 +2,9 @@ package ashitakalax.com.popularmovies;
 
 import android.net.Uri;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,11 +23,12 @@ import ashitakalax.com.popularmovies.movie.MovieContract;
  * Created by levi Balling on 1/1/2016.
  * This class is taking a lot of what is in the MovieGridActivity and putting it in here
  */
-public class MovieFragment extends Fragment{
+public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String LOG_TAG = MovieFragment.class.getSimpleName();
 
 
+    private static final int MOVIE_LOADER = 0;
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
 
@@ -63,26 +67,24 @@ public class MovieFragment extends Fragment{
     {
 
         //get the cursor
-        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
-        //todo change the last null to be the sort order
-        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+//        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
+//        //todo change the last null to be the sort order
+//        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
 
 
-        this.mMovieAdapter = new MovieAdapter(getActivity(), cur, 0);
+        this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.movie_grid,container, false);
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
         this.mGridView.setAdapter(this.mMovieAdapter);
-//        this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//
-//                Cursor cursor = (Cursor)adapterView.getItemAtPosition(position);
-//
-//            }
-//        });
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -95,5 +97,24 @@ public class MovieFragment extends Fragment{
     {
         new FetchMovieTask(this.getContext()).execute(FetchMovieTask.SORT_BY_POPULARITY);
 
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
+        //todo change the last null to be the sort order
+//        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+
+        return new CursorLoader(getActivity(), movieUri, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mMovieAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        mMovieAdapter.swapCursor(null);
     }
 }
