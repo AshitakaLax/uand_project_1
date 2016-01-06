@@ -41,12 +41,11 @@ public class MovieAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        int movieImgIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL);
-
+//        int movieImgIndex = cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_POSTER_URL);
 
         ImageView movieImageView = (ImageView) view.findViewById(R.id.movie_item_image);
         //use the cursor to get the image url of the movie
-        String imageUrl = "http://image.tmdb.org/t/p/w185" + cursor.getString(movieImgIndex);
+        String imageUrl = "http://image.tmdb.org/t/p/w185" + cursor.getString(MovieFragment.COL_MOVIE_POSTER);
         Picasso.with(context).load(imageUrl).into(movieImageView);
         //don't need tags to hold the items now with the cursors
         //view.setTag(item);

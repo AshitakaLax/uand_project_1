@@ -29,6 +29,23 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
 
     private static final int MOVIE_LOADER = 0;
+    // Specify the columns we need.
+    private static final String[] MOVIE_COLUMNS = {
+            // In this case the id needs to be fully qualified with a table name, since
+            // the content provider joins the location & weather tables in the background
+            // (both have an _id column)
+            // On the one hand, that's annoying.  On the other, you can search the weather table
+            // using the location set by the user, which is only in the Location table.
+            // So the convenience is worth it.
+            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry._ID,
+            MovieContract.MovieEntry.COLUMN_MOVIE_ID,
+            MovieContract.MovieEntry.COLUMN_POSTER_URL
+    };
+
+    static final int COL_ID = 0;
+    static final int COL_MOVIE_ID = 1;
+    static final int COL_MOVIE_POSTER = 2;
+
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
 
@@ -105,7 +122,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         //todo change the last null to be the sort order
 //        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
 
-        return new CursorLoader(getActivity(), movieUri, null, null, null, null);
+        return new CursorLoader(getActivity(), movieUri, MOVIE_COLUMNS, null, null, null);
     }
 
     @Override
