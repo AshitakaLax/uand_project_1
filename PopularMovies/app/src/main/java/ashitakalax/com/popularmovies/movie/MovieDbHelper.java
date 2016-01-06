@@ -37,7 +37,8 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 // forecasting, it's reasonable to assume the user will want information
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
-                MovieEntry._ID + " INTEGER PRIMARY KEY," +
+                MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
+                MovieEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL," +
                 MovieEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT," +
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL  NOT NULL," +

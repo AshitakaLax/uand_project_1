@@ -217,11 +217,11 @@ public class MovieItem implements Parcelable{
             ContentValues movieValues = new ContentValues();
 
             movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, item.getId());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, item.getPlotSynopsis());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, item.getImageUrl());
             movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, item.getOriginalTitle());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, item.getPlotSynopsis());
             movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, item.getUserRating());
             movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, item.getReleaseDate());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, item.getImageUrl());
 
 
             movieVector.add(movieValues);

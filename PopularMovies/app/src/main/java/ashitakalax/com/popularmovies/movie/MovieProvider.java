@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import java.sql.SQLException;
+
 public class MovieProvider extends ContentProvider {
 
 
@@ -95,6 +97,7 @@ public class MovieProvider extends ContentProvider {
         int rowsDeleted;
         // this makes delete all rows return the number of rows deleted
         if ( null == selection ) selection = "1";
+
         switch (match) {
             case MOVIES:
                 rowsDeleted = db.delete(
@@ -148,6 +151,10 @@ public class MovieProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
 
+        if(db.isReadOnly())
+        {
+            throw new android.database.SQLException("Can't insert in a ReadOnly Database");
+        }
         switch (match) {
             case MOVIES: {
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);

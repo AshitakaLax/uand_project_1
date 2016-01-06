@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -44,6 +45,18 @@ public class MovieFragment extends Fragment{
         inflater.inflate(R.menu.menu_main_grid, menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.refresh_menu_option) {
+
+            this.updateMovieDb();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -70,5 +83,17 @@ public class MovieFragment extends Fragment{
 //            }
 //        });
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateMovieDb();
+    }
+
+    private void updateMovieDb()
+    {
+        new FetchMovieTask(this.getContext()).execute(FetchMovieTask.SORT_BY_POPULARITY);
+
     }
 }

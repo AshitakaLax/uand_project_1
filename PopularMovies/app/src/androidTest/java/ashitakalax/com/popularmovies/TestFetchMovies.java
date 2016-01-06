@@ -59,12 +59,14 @@ public class TestFetchMovies extends AndroidTestCase{
                     Log.d(LOG_TAG, "testMovieDatabaseMovieAdd: count(" + movieCursor.getColumnName(i) + ")");
 
                 }
-                assertTrue(movieCursor.getInt(0) != 0);
-                assertTrue(movieCursor.getInt(0) != 0);
-                assertFalse(movieCursor.getString(1).isEmpty());
-                assertFalse(movieCursor.getString(2).isEmpty());
-                assertTrue(movieCursor.getFloat(3) != 0.0);
-                assertFalse(movieCursor.getString(4).isEmpty());
+
+                assertTrue(movieCursor.getInt(0) != 0);//AutoIncrement Id
+                assertTrue(movieCursor.getInt(1) != 0);// Movie Id
+                assertFalse(movieCursor.getString(2).isEmpty());// Movie Title
+                assertFalse(movieCursor.getString(3).isEmpty());// Movie overview
+                assertTrue(movieCursor.getFloat(4) != 0.0);// Movie vote average
+                assertFalse(movieCursor.getString(5).isEmpty());// release date
+                assertFalse(movieCursor.getString(6).isEmpty());// Poster URL
 
 
             } else {

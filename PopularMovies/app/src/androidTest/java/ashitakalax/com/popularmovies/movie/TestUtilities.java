@@ -27,6 +27,7 @@ import java.util.Set;
  */
 public class TestUtilities extends AndroidTestCase {
     static final String TEST_LOCATION = "99705";
+    public static final long TEST_MOVIE_AUTO_INCREMENT_ID = 1;
     public static final long TEST_MOVIE_ID = 99705;
     static final String TEST_TRAILER_ID = "AC523KB";
     static final String TEST_REVIEW_ID = "BBEC3KB";
@@ -54,14 +55,15 @@ public class TestUtilities extends AndroidTestCase {
         Students: Use this to create some default weather values for your database tests.
      */
     static ContentValues createAwesomeMovieValues() {
-        ContentValues weatherValues = new ContentValues();
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, TEST_MOVIE_ID);
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, "AWESOME TO THE MAX");
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "This is the best movie ever");
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, 7.86);
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "2015-07-17");
-        weatherValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, "/kvXLZqY0Ngl1XSw7EaMQO0C1CCj");
-        return weatherValues;
+        ContentValues movieValues = new ContentValues();
+        movieValues.put(MovieContract.MovieEntry._ID, TEST_MOVIE_AUTO_INCREMENT_ID);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, TEST_MOVIE_ID);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, "AWESOME TO THE MAX");
+        movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "This is the best movie ever");
+        movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, 7.86);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "2015-07-17");
+        movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, "/kvXLZqY0Ngl1XSw7EaMQO0C1CCj");
+        return movieValues;
     }
 
     /*
@@ -103,6 +105,7 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues testValues = TestUtilities.createAwesomeMovieValues();
 
         long locationRowId;
+//      context.getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, testValues);
         locationRowId = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, testValues);
 
         // Verify we got a row back.
