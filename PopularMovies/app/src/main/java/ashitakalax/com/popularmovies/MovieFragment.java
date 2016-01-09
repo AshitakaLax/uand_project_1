@@ -1,13 +1,14 @@
 package ashitakalax.com.popularmovies;
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,8 +27,9 @@ import ashitakalax.com.popularmovies.movie.MovieContract;
 public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     public static final String LOG_TAG = MovieFragment.class.getSimpleName();
-
-
+    static final int COL_ID = 0;
+    static final int COL_MOVIE_ID = 1;
+    static final int COL_MOVIE_POSTER = 2;
     private static final int MOVIE_LOADER = 0;
     // Specify the columns we need.
     private static final String[] MOVIE_COLUMNS = {
@@ -41,11 +43,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             MovieContract.MovieEntry.COLUMN_MOVIE_ID,
             MovieContract.MovieEntry.COLUMN_POSTER_URL
     };
-
-    static final int COL_ID = 0;
-    static final int COL_MOVIE_ID = 1;
-    static final int COL_MOVIE_POSTER = 2;
-
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
 
@@ -95,6 +92,18 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
         this.mGridView.setAdapter(this.mMovieAdapter);
+
+        this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView parent, View view, int position, long id) {
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                if (cursor != null) {
+                    Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                    intent.setData(MovieContract.MovieEntry.buildMovieUri(cursor.getInt(COL_MOVIE_ID)));
+                    startActivity(intent);
+                }
+            }
+        });
         return rootView;
     }
 
