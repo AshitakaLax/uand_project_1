@@ -8,22 +8,30 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import java.sql.SQLException;
-
 public class MovieProvider extends ContentProvider {
-
-
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private MovieDbHelper mOpenHelper;
 
 
     static final int MOVIES = 100;
     static final int MOVIES_WITH_REVIEWS = 101;
     static final int MOVIES_WITH_TRAILERS = 102;
+    static final int MOVIES_WITH_ID = 103;
     static final int TRAILERS = 300;
     static final int REVIEWS = 400;//do these mean anything?
-
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final SQLiteQueryBuilder sReviewsByMovieIdQueryBuilder;
+    private static final SQLiteQueryBuilder sTrailersByMovieIdQueryBuilder;
+    private static final SQLiteQueryBuilder sMovieByIdQueryBuilder;
+    //location.location_setting = ?
+    //reviews.movieId = ?
+    private static final String sMovieReviewSelection =
+            MovieContract.ReviewEntry.TABLE_NAME +
+                    "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " = ? ";
+    private static final String sMovieTrailerSelection =
+            MovieContract.TrailerEntry.TABLE_NAME +
+                    "." + MovieContract.TrailerEntry.COLUMN_MOVIE_KEY + " = ? ";
+    private static final String sMovieIdSelection =
+            MovieContract.MovieEntry.TABLE_NAME +
+                    "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ? ";
 
     static{
         sReviewsByMovieIdQueryBuilder = new SQLiteQueryBuilder();
@@ -39,14 +47,55 @@ public class MovieProvider extends ContentProvider {
                         "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID);
     }
 
+    static {
+        sTrailersByMovieIdQueryBuilder = new SQLiteQueryBuilder();
 
-    //location.location_setting = ?
-    //reviews.movieId = ?
-    private static final String sMovieReviewSelection =
-            MovieContract.ReviewEntry.TABLE_NAME+
-                    "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " = ? ";
+        //This is an inner join which looks like
+        //reviews INNER JOIN movie ON reviews.review_id = movie.review_id
+        sTrailersByMovieIdQueryBuilder.setTables(
+                MovieContract.TrailerEntry.TABLE_NAME + " INNER JOIN " +
+                        MovieContract.MovieEntry.TABLE_NAME +
+                        " ON " + MovieContract.TrailerEntry.TABLE_NAME +
+                        "." + MovieContract.TrailerEntry.COLUMN_MOVIE_KEY +
+                        " = " + MovieContract.MovieEntry.TABLE_NAME +
+                        "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID);
+    }
+
+    static {
+        sMovieByIdQueryBuilder = new SQLiteQueryBuilder();
+
+        //This is an inner join which looks like
+        //reviews INNER JOIN movie ON reviews.review_id = movie.review_id
+        sMovieByIdQueryBuilder.setTables(
+                MovieContract.MovieEntry.TABLE_NAME + " WHERE " +
+                        MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                        " = " + MovieContract.ReviewEntry.TABLE_NAME +
+                        "." + MovieContract.ReviewEntry.COLUMN_MOVIE_KEY +
+                        " = " + MovieContract.MovieEntry.TABLE_NAME +
+                        "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID);
+    }
+
+    private MovieDbHelper mOpenHelper;
 
     public MovieProvider() {
+    }
+
+    static UriMatcher buildUriMatcher() {
+        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = MovieContract.CONTENT_AUTHORITY;
+
+        // For each type of URI you want to add, create a corresponding code.
+        matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
+        matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILERS);
+        matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_MOVIE + "/*", MOVIES_WITH_ID);//querying a specific movie
+        matcher.addURI(authority, MovieContract.PATH_REVIEWS + "/*", MOVIES_WITH_REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_TRAILERS + "/*", MOVIES_WITH_TRAILERS);
+//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
+//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
+//
+//        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        return matcher;
     }
 
     private Cursor getReviewsByMovieId(Uri uri, String[] projection, String sortOrder) {
@@ -71,25 +120,51 @@ public class MovieProvider extends ContentProvider {
         );
     }
 
+    private Cursor getTrailersByMovieId(Uri uri, String[] projection, String sortOrder) {
+        String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        //don't think this is needed
+//        long startDate = MovieContract.MovieEntry.getStartDateFromUri(uri);
+//        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
 
+        String[] selectionArgs;
+        String selection;
 
-    static UriMatcher buildUriMatcher() {
-        final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = MovieContract.CONTENT_AUTHORITY;
+        selection = sMovieTrailerSelection;
+        selectionArgs = new String[]{movieIdStr};
 
-        // For each type of URI you want to add, create a corresponding code.
-        matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
-        matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILERS);
-        matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEWS);
-
-        matcher.addURI(authority, MovieContract.PATH_REVIEWS + "/*", MOVIES_WITH_REVIEWS);
-        matcher.addURI(authority, MovieContract.PATH_TRAILERS + "/*", MOVIES_WITH_TRAILERS);
-//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
-//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
-//
-//        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
-        return matcher;
+        return sTrailersByMovieIdQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
     }
+
+    private Cursor getMovieById(Uri uri, String[] projection, String sortOrder) {
+        String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+        //don't think this is needed
+//        long startDate = MovieContract.MovieEntry.getStartDateFromUri(uri);
+//        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
+
+        String[] selectionArgs;
+        String selection;
+
+        selection = sMovieIdSelection;
+        selectionArgs = new String[]{movieIdStr};
+
+        return mOpenHelper.getReadableDatabase().query(
+                MovieContract.MovieEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+    }
+
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
@@ -110,6 +185,10 @@ public class MovieProvider extends ContentProvider {
             case TRAILERS:
                 rowsDeleted = db.delete(
                         MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case MOVIES_WITH_ID:
+                rowsDeleted = db.delete(
+                        MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -135,6 +214,8 @@ public class MovieProvider extends ContentProvider {
                 return MovieContract.TrailerEntry.CONTENT_ITEM_TYPE;
             case MOVIES:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
+            case MOVIES_WITH_ID:
+                return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
             case REVIEWS:
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             case TRAILERS:
@@ -207,12 +288,17 @@ public class MovieProvider extends ContentProvider {
                 retCursor = getReviewsByMovieId(uri, projection, sortOrder);
                 break;
             }
-//            case MOVIES_WITH_TRAILERS: {
-//                retCursor = getWeatherByLocationSetting(uri, projection, sortOrder);
-//                break;
-//            }
+            case MOVIES_WITH_TRAILERS: {
+                retCursor = getTrailersByMovieId(uri, projection, sortOrder);
+                break;
+            }
             case MOVIES: {
                 retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.MovieEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
+                break;
+            }
+            case MOVIES_WITH_ID: {
+                retCursor = getMovieById(uri, projection, sortOrder);
+//                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.MovieEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
                 break;
             }
             case TRAILERS: {

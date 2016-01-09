@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,31 +6,31 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="vertical"
     android:showDividers="middle"
-    tools:context=".MovieDetailActivity"
-    android:weightSum="1">
+    android:weightSum="1"
+    tools:context=".MovieDetailActivity">
 
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/scrollView" >
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Large Text"
-                android:id="@+id/titleTextView"
-                android:textColor="@android:color/white"
                 android:background="#009688"
+                android:paddingBottom="@dimen/abc_dialog_padding_material"
                 android:paddingLeft="@dimen/abc_dialog_padding_material"
                 android:paddingTop="@dimen/abc_dialog_padding_material"
-                android:paddingBottom="@dimen/abc_dialog_padding_material"
+                android:text="Large Text"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/white"
                 android:textSize="@dimen/abc_text_size_large_material" />
 
             <RelativeLayout
@@ -42,9 +41,9 @@
                 android:layout_marginTop="8dp">
 
                 <ImageView
+                    android:id="@+id/moviePosterImageView"
                     android:layout_width="@dimen/item_width"
-                    android:layout_height="@dimen/item_height"
-                    android:id="@+id/moviePosterImageView" />
+                    android:layout_height="@dimen/item_height" />
 
                 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
@@ -52,103 +51,104 @@
                     style="?android:attr/textAppearanceLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textIsSelectable="true"
-                    android:layout_marginLeft="16dp"
                     android:layout_alignParentTop="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_toEndOf="@+id/moviePosterImageView"
                     android:layout_toRightOf="@+id/moviePosterImageView"
-                    android:layout_toEndOf="@+id/moviePosterImageView" />
+                    android:padding="16dp"
+                    android:textIsSelectable="true" />
 
-                <TextView
-                    style="?android:attr/textAppearanceLarge"
-                    xmlns:android="http://schemas.android.com/apk/res/android"
+                <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
                     android:id="@+id/movieTimeLengthTextView"
+                    style="?android:attr/textAppearanceLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textIsSelectable="true"
-                    android:layout_below="@+id/releaseDateTextView"
                     android:layout_alignLeft="@+id/releaseDateTextView"
-                    android:layout_alignStart="@+id/releaseDateTextView" />
+                    android:layout_alignStart="@+id/releaseDateTextView"
+                    android:layout_below="@+id/releaseDateTextView"
+                    android:padding="16dp"
+                    android:textIsSelectable="true" />
 
-                <TextView
-                    style="?android:attr/textAppearanceLarge"
-                    xmlns:android="http://schemas.android.com/apk/res/android"
+                <TextView xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
                     android:id="@+id/movieRatingTextView"
+                    style="?android:attr/textAppearanceLarge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textIsSelectable="true"
-                    android:layout_below="@+id/movieTimeLengthTextView"
                     android:layout_alignLeft="@+id/movieTimeLengthTextView"
-                    android:layout_alignStart="@+id/movieTimeLengthTextView"/>
+                    android:layout_alignStart="@+id/movieTimeLengthTextView"
+                    android:layout_below="@+id/movieTimeLengthTextView"
+                    android:padding="16dp"
+                    android:textIsSelectable="true" />
 
                 <Button
+                    android:id="@+id/favoriteButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mark As\n Favorites"
-                    android:id="@+id/favoriteButton"
+                    android:layout_alignLeft="@+id/movieRatingTextView"
+                    android:layout_alignStart="@+id/movieRatingTextView"
                     android:layout_below="@+id/movieRatingTextView"
                     android:layout_marginTop="15dp"
                     android:background="#00bfa5"
-                    android:layout_alignLeft="@+id/movieRatingTextView"
-                    android:layout_alignStart="@+id/movieRatingTextView"
+                    android:text="Mark As\n Favorites"
                     android:textSize="12dp" />
 
             </RelativeLayout>
 
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp">
+                android:layout_marginRight="16dp"
+                android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/movieOverviewTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:id="@+id/movieOverviewTextView" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
                 <View
+                    android:id="@+id/barSplitter"
                     android:layout_width="fill_parent"
                     android:layout_height="2dp"
-                    android:background="#424242"
-                    android:id="@+id/barSplitter" />
+                    android:background="#424242" />
 
                 <TextView
+                    android:id="@+id/TrailersTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Trailers:"
-                    android:id="@+id/TrailersTitleTextView" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
                 <LinearLayout
-                    android:orientation="vertical"
+                    android:id="@+id/TrailersLayout"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/TrailersLayout"
-                    android:layout_marginRight="16dp"/>
+                    android:layout_marginRight="16dp"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/trailer_detail" />
+                </LinearLayout>
                 <View
+                    android:id="@+id/reviewBarSplitter"
                     android:layout_width="fill_parent"
                     android:layout_height="2dp"
-                    android:background="#424242"
-                    android:id="@+id/reviewBarSplitter" />
+                    android:background="#424242" />
 
                 <TextView
+                    android:id="@+id/reviewsTitleTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="Reviews:"
-                    android:id="@+id/reviewsTitleTextView" />
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <LinearLayout
-                    android:orientation="vertical"
+                    android:id="@+id/reviewsLayout"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/reviewsLayout"
                     android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"/>
+                    android:layout_marginRight="16dp"
+                    android:orientation="vertical" />
             </LinearLayout>
 
         </LinearLayout>

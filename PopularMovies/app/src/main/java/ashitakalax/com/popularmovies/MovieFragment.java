@@ -86,8 +86,9 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
 
 
+
         this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
-        View rootView = inflater.inflate(R.layout.movie_grid,container, false);
+        View rootView = inflater.inflate(R.layout.movie_grid, container, false);
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 

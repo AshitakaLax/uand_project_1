@@ -6,12 +6,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
-
-import ashitakalax.com.popularmovies.movie.MovieItem;
 
 /**
  * An activity representing a single movie detail screen. This
@@ -43,17 +37,16 @@ public class MovieDetailActivity extends AppCompatActivity {
         //
         // http://developer.android.com/guide/components/fragments.html
         //
+
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
-            Bundle arguments = new Bundle();
+            //Bundle arguments = new Bundle();
 
-            //if(getIntent().hasExtra(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID))
-
-            arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, getIntent().getParcelableExtra(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID));
+            //arguments.putParcelable(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID, getIntent().getParcelableExtra(MovieDetailFragment.ARG_MOVIE_BUNDLE_ID));
 
             MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
+            //fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, fragment)
                     .commit();
