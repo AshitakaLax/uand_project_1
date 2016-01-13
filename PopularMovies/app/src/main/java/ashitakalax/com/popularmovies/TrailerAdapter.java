@@ -1,7 +1,10 @@
 package ashitakalax.com.popularmovies;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +39,7 @@ public class TrailerAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
 
         TextView trailerTextView = (TextView) view.findViewById(R.id.trailerLabelTextView);
         String TrailerTitle = cursor.getString(MovieDetailFragment.TRAILER_COL_TITLE);
@@ -45,22 +48,22 @@ public class TrailerAdapter extends CursorAdapter {
         String trailerUrl = cursor.getString(MovieDetailFragment.TRAILER_COL_URL);
         trailerPlayButton.setTag(trailerUrl);
 
-//        trailerPlayButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //start an intent to play a movie on youtube or chrome
-//                String url = (String) view.getTag();
-//                //TrailerItem tempItem = (TrailerItem) view.getTag();
-//                try {
-//                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + url));
-//                    startActivity(intent);
-//                } catch (ActivityNotFoundException ex) {
-//                    Intent intent = new Intent(Intent.ACTION_VIEW,
-//                            Uri.parse("http://www.youtube.com/watch?v=" + url));
-//                    startActivity(intent);
-//                }
-//            }
-//        });
+        trailerPlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //start an intent to play a movie on youtube or chrome
+                String url = (String) view.getTag();
+                //TrailerItem tempItem = (TrailerItem) view.getTag();
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + url));
+                    context.startActivity(intent);
+                } catch (ActivityNotFoundException ex) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("http://www.youtube.com/watch?v=" + url));
+                    context.startActivity(intent);
+                }
+            }
+        });
 
         trailerTextView.setText(TrailerTitle);
         view.setTag(trailerUrl);

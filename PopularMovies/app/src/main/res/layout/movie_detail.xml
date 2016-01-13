@@ -127,6 +127,12 @@
                     android:layout_marginRight="16dp"
                     android:orientation="vertical">
 
+                    <ListView
+                        android:id="@+id/TrailersListView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </ListView>
                     <include layout="@layout/trailer_detail" />
                 </LinearLayout>
                 <View
@@ -148,7 +154,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
-                    android:orientation="vertical" />
+                    android:orientation="vertical" >
+                    <ListView
+                        android:id="@+id/ReviewListView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </ListView>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>

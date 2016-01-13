@@ -15,9 +15,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -106,6 +108,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private int mMovieId;
     private MovieItem mItem;
     private Button favoriteButton;
+    private ListView mTrailerListView;
+    private ListView mReviewListView;
+    private TrailerAdapter mTrailerAdapter;
+    private ReviewAdapter mReviewAdapter;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -141,96 +147,32 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.movie_detail, container, false);
 
+        mTrailerListView = (ListView)rootView.findViewById(R.id.TrailersListView);
+        mReviewListView = (ListView)rootView.findViewById(R.id.ReviewListView);
 
+        this.mTrailerAdapter = new TrailerAdapter(getActivity(), null, 0);
+        mTrailerListView.setAdapter(mTrailerAdapter);
 
+        this.mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
+        mReviewListView.setAdapter(this.mReviewAdapter);
 
-        return rootView;
-
-//
-//        // Show the dummy content as text in a TextView.
-//        if (mItem != null) {
-//            TextView titleTextView = (TextView) rootView.findViewById(R.id.titleTextView);
-//            TextView releaseDateTextView = (TextView) rootView.findViewById(R.id.releaseDateTextView);
-//            TextView movieTimeLengthTextView = (TextView) rootView.findViewById(R.id.movieTimeLengthTextView);
-//            TextView movieRatingTextView = (TextView) rootView.findViewById(R.id.movieRatingTextView);
-//            TextView movieOverviewTextView = (TextView) rootView.findViewById(R.id.movieOverviewTextView);
-//            ImageView posterImageView = (ImageView) rootView.findViewById(R.id.moviePosterImageView);
-//            this.favoriteButton = (Button) rootView.findViewById(R.id.favoriteButton);
-//            LinearLayout trailerLayout = (LinearLayout) rootView.findViewById(R.id.TrailersLayout);
-//            LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.reviewsLayout);
-//
-//            if (titleTextView != null) {
-//                titleTextView.setText(mItem.getOriginalTitle());
-//            }
-//            if (releaseDateTextView != null) {
-//                releaseDateTextView.setText(mItem.getReleaseDate());
-//            }
-//            if (movieRatingTextView != null) {
-//                movieRatingTextView.setText(mItem.getUserRating() + "/10");
-//            }
-//            if (movieOverviewTextView != null) {
-//                movieOverviewTextView.setText(mItem.getPlotSynopsis());
-//            }
-//            if (posterImageView != null) {
-//
-//                String imageUrl = "http://image.tmdb.org/t/p/w185" + mItem.getImageUrl();
-//                Picasso.with(getContext()).load(imageUrl).into(posterImageView);
-//            }
-//            if(favoriteButton != null)
-//            {
-//                //determine whether we want to display this button as a remove from favorites
-//                //or save to favorites
-//                this.updateFavoriteButtonText(isMovieFavorite());
-//                favoriteButton.setOnClickListener(this);
-//            }
-//
-//            View custom = null;
-//            for (TrailerItem trailer : mItem.getTrailers())
-//            {
-//                custom = LayoutInflater.from(getContext()).inflate(R.layout.trailer_detail,trailerLayout, false);
-//
-//                TextView trailerTextView = (TextView) custom.findViewById(R.id.trailerLabelTextView);
-//                trailerTextView.setText(trailer.getTitle());
-//                Button trailerPlayButton = (Button) custom.findViewById(R.id.playButton);
-//
-//                trailerPlayButton.setTag(trailer);
-//                trailerPlayButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        //start an intent to play a movie on youtube or chrome
-//                        TrailerItem tempItem = (TrailerItem)view.getTag();
-//                        try {
-//                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + tempItem.getUrl()));
-//                            startActivity(intent);
-//                        }
-//                    catch(ActivityNotFoundException ex)
-//                    {
+//        this.mTrailerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                //start an intent to play a movie on youtube or chrome
+//                    String url = (String) view.getTag();
+//                    try {
+//                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + url));
+//                        startActivity(intent);
+//                    } catch (ActivityNotFoundException ex) {
 //                        Intent intent = new Intent(Intent.ACTION_VIEW,
-//                                Uri.parse("http://www.youtube.com/watch?v=" + tempItem.getUrl()));
+//                                Uri.parse("http://www.youtube.com/watch?v=" + url));
 //                        startActivity(intent);
 //                    }
-//                }
-//            });
-//                trailerTextView.setText(trailer.getTitle());
-//                custom.setTag(trailer);
-//                trailerLayout.addView(custom);
-//
 //            }
-//            custom = null;
-//            int i = 0;
-//            for (ReviewItem review : mItem.getReviews())
-//            {
-//                custom = LayoutInflater.from(getContext()).inflate(R.layout.review_detail,reviewLayout, false);
-//
-//                TextView reviewTextView = (TextView) custom.findViewById(R.id.reviewLabelTextView);
-//                reviewTextView.setText("Review "+ (i++) + ": " +review.getReview());
-//                custom.setTag(review);
-//                reviewLayout.addView(custom);
-//            }
-//
-//        }
-//
-//        return rootView;
+//        });
+
+        return rootView;
     }
 
 
@@ -398,60 +340,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             loadTrailerDetail(data);
         }
         return;
-//
-//        if(!data.moveToFirst())
-//        {
-//            return;
-//        }
-//
-//        String movieTitle = data.getString(COL_MOVIE_TITLE);
-//        String movieReleaseDate = data.getString(COL_MOVIE_RELEASE_DATE);
-//        String movieOverview = data.getString(COL_MOVIE_OVERVIEW);
-//
-//        String moviePoster = data.getString(COL_MOVIE_POSTER);
-//
-//        double movieRating = data.getDouble(COL_MOVIE_VOTE);
-//
-//        //get the data from the cursor
-//        TextView titleTextView = (TextView) getView().findViewById(R.id.titleTextView);
-//        TextView releaseDateTextView = (TextView) getView().findViewById(R.id.releaseDateTextView);
-//        TextView movieTimeLengthTextView = (TextView) getView().findViewById(R.id.movieTimeLengthTextView);
-//        TextView movieRatingTextView = (TextView) getView().findViewById(R.id.movieRatingTextView);
-//        TextView movieOverviewTextView = (TextView) getView().findViewById(R.id.movieOverviewTextView);
-//        ImageView posterImageView = (ImageView) getView().findViewById(R.id.moviePosterImageView);
-//        this.favoriteButton = (Button) getView().findViewById(R.id.favoriteButton);
-//        LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
-//        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
-//
-//        if (titleTextView != null) {
-//            titleTextView.setText(movieTitle);
-//        }
-//
-//        if (releaseDateTextView != null) {
-//            releaseDateTextView.setText(movieReleaseDate);
-//        }
-//
-//        if (movieRatingTextView != null) {
-//            movieRatingTextView.setText(movieRating + "/10");
-//        }
-//
-//        if (movieOverviewTextView != null) {
-//            movieOverviewTextView.setText(movieOverview);
-//        }
-//
-//        if (posterImageView != null) {
-//
-//            String imageUrl = "http://image.tmdb.org/t/p/w185" + moviePoster;
-//            Picasso.with(getContext()).load(imageUrl).into(posterImageView);
-//        }
-////            if(favoriteButton != null)
-////            {
-////                //determine whether we want to display this button as a remove from favorites
-////                //or save to favorites
-////                this.updateFavoriteButtonText(isMovieFavorite());
-////                favoriteButton.setOnClickListener(this);
-////            }
-
     }
 
     @Override
@@ -460,55 +348,68 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
     private void loadTrailerDetail(Cursor data) {
-        if (!data.moveToFirst()) {
-            return;
-        }
-        LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
-
-        View custom = null;
-        do {
-            custom = LayoutInflater.from(getContext()).inflate(R.layout.trailer_detail, trailerLayout, false);
-
-            TextView trailerTextView = (TextView) custom.findViewById(R.id.trailerLabelTextView);
-            String TrailerTitle = data.getString(TRAILER_COL_TITLE);
-            trailerTextView.setText(TrailerTitle);//.getTitle());
-            Button trailerPlayButton = (Button) custom.findViewById(R.id.playButton);
-            String trailerUrl = data.getString(TRAILER_COL_URL);
-            trailerPlayButton.setTag(trailerUrl);
-            trailerPlayButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //start an intent to play a movie on youtube or chrome
-                    String url = (String) view.getTag();
-                    //TrailerItem tempItem = (TrailerItem) view.getTag();
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + url));
-                        startActivity(intent);
-                    } catch (ActivityNotFoundException ex) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW,
-                                Uri.parse("http://www.youtube.com/watch?v=" + url));
-                        startActivity(intent);
-                    }
-                }
-            });
-            trailerTextView.setText(TrailerTitle);
-            custom.setTag(trailerUrl);
-            trailerLayout.addView(custom);
-        }
-        while (data.moveToNext());
+        this.mTrailerAdapter.swapCursor(data);
+        return;
+//        if (!data.moveToFirst()) {
+//            return;
+//        }
+//        LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
+//
+//        View custom = null;
+//        do {
+//
+//            //TODO create an instance of the trailer Adapter should be the same as the movie adapter setup
+//            custom = LayoutInflater.from(getContext()).inflate(R.layout.trailer_detail, trailerLayout, false);
+//
+//            TextView trailerTextView = (TextView) custom.findViewById(R.id.trailerLabelTextView);
+//            String TrailerTitle = data.getString(TRAILER_COL_TITLE);
+//            trailerTextView.setText(TrailerTitle);//.getTitle());
+//            Button trailerPlayButton = (Button) custom.findViewById(R.id.playButton);
+//            String trailerUrl = data.getString(TRAILER_COL_URL);
+//            trailerPlayButton.setTag(trailerUrl);
+//            trailerPlayButton.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    //start an intent to play a movie on youtube or chrome
+//                    String url = (String) view.getTag();
+//                    //TrailerItem tempItem = (TrailerItem) view.getTag();
+//                    try {
+//                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + url));
+//                        startActivity(intent);
+//                    } catch (ActivityNotFoundException ex) {
+//                        Intent intent = new Intent(Intent.ACTION_VIEW,
+//                                Uri.parse("http://www.youtube.com/watch?v=" + url));
+//                        startActivity(intent);
+//                    }
+//                }
+//            });
+//            trailerTextView.setText(TrailerTitle);
+//            custom.setTag(trailerUrl);
+//            trailerLayout.addView(custom);
+//        }
+//        while (data.moveToNext());
 
     }
 
     private void loadReviewDetail(Cursor data) {
-        if (!data.moveToFirst()) {
-            return;
-        }
-//        String movieTitle = data.getString(COL_MOVIE_TITLE);
-//        String movieReleaseDate = data.getString(COL_MOVIE_RELEASE_DATE);
-//        String movieOverview = data.getString(COL_MOVIE_OVERVIEW);
-
-//            LinearLayout reviewLayout = (LinearLayout) rootView.findViewById(R.id.reviewsLayout);
+        this.mReviewAdapter.swapCursor(data);
+        return;
+//        if (!data.moveToFirst()) {
+//            return;
+//        }
 //
+//        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
+//                    int i = 0;
+//        do {
+//            View  custom = LayoutInflater.from(getContext()).inflate(R.layout.review_detail,reviewLayout, false);
+//            TextView reviewTextView = (TextView) custom.findViewById(R.id.reviewLabelTextView);
+//
+//            String reviewStr = data.getString(0);//todo update index
+//            reviewTextView.setText("Review: " + reviewStr );
+////            custom.setTag(review);
+//            reviewLayout.addView(custom);
+//        }while(data.moveToNext());
+
     }
 
     private void loadMovieDetail(Cursor data) {
