@@ -112,9 +112,6 @@ public class MovieProvider extends ContentProvider {
 
     private Cursor getReviewsByMovieId(Uri uri, String[] projection, String sortOrder) {
         String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
-        //don't think this is needed
-//        long startDate = MovieContract.MovieEntry.getStartDateFromUri(uri);
-//        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
 
         String[] selectionArgs;
         String selection;

@@ -24,7 +24,7 @@ import ashitakalax.com.popularmovies.movie.MovieContract;
  * Created by levi Balling on 1/1/2016.
  * This class is taking a lot of what is in the MovieGridActivity and putting it in here
  */
-public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,FetchMovieTask.FetchComplete {
 
     public static final String LOG_TAG = MovieFragment.class.getSimpleName();
     static final int COL_ID = 0;
@@ -71,6 +71,24 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             this.updateMovieDb();
             return true;
         }
+        else if (id == R.id.sort_popularity) {
+            //todo change the location of the SORT_BY_POPULARITY to be a more suitable location
+            Utility.setPreferredSortingType(getContext(), Utility.SORT_BY_POPULARITY);
+            this.updateMovieDb();
+            return true;
+        }
+        else if (id == R.id.sort_highest_rated) {
+            //todo change the location of the SORT_BY_POPULARITY to be a more suitable location
+            Utility.setPreferredSortingType(getContext(), Utility.SORT_BY_RATING);
+            this.updateMovieDb();
+            return true;
+        }
+        else if (id == R.id.sort_favories) {
+            //todo change the location of the SORT_BY_POPULARITY to be a more suitable location
+            Utility.setPreferredSortingType(getContext(), Utility.SORT_BY_FAVORITES);
+            this.updateMovieDb();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -79,13 +97,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-
-        //get the cursor
-//        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
-//        //todo change the last null to be the sort order
-//        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-
-
 
         this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.movie_grid, container, false);
@@ -122,7 +133,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void updateMovieDb()
     {
-        new FetchMovieTask(this.getContext()).execute(FetchMovieTask.SORT_BY_POPULARITY);
+        String sortingType = Utility.getPreferredSortingType(getContext());
+        FetchMovieTask fetchMovieTask = new FetchMovieTask(this.getContext());
+        fetchMovieTask.setFetchMovieCompleted(this);
+
+        fetchMovieTask.execute(sortingType);
 
     }
 
@@ -132,7 +147,25 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         //todo change the last null to be the sort order
 //        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
 
-        return new CursorLoader(getActivity(), movieUri, MOVIE_COLUMNS, null, null, null);
+        String sortingType = Utility.getPreferredSortingType(getContext());
+        String sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+        String SelectionStr = null;
+        String[] SelectionArgs = null;
+        if(sortingType == Utility.SORT_BY_RATING) {
+
+            sortStr = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+        }
+        else if(sortingType == Utility.SORT_BY_FAVORITES) {
+
+            sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+            SelectionStr = MovieContract.MovieEntry.COLUMN_IS_FAVORITE + "=?";
+            SelectionArgs = new String[1];
+            SelectionArgs[0] = "TRUE";
+        }
+
+
+
+        return new CursorLoader(getActivity(), movieUri, MOVIE_COLUMNS, SelectionStr, SelectionArgs, sortStr);
     }
 
     @Override
@@ -143,5 +176,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mMovieAdapter.swapCursor(null);
+    }
+
+    @Override
+    public void FetchComplete() {
+        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
 }

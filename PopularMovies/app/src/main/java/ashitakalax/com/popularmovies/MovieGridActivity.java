@@ -85,7 +85,8 @@ public class MovieGridActivity extends AppCompatActivity implements View.OnClick
 
         //check the shared preferences whether
         SharedPreferences prefs = getSharedPreferences(MOVIE_SHARE_PREF_FILE, MODE_PRIVATE);
-        this.mSortTypeStr = prefs.getString(SORT_TYPE, SORT_BY_POPULARITY);
+
+        this.mSortTypeStr = Utility.getPreferredSortingType(getApplicationContext());
 
 //        if(savedInstanceState == null || !savedInstanceState.containsKey("SortType")) {
 //

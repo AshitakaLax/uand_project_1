@@ -31,9 +31,16 @@ public class FetchMovieDetailsTask extends AsyncTask<List<MovieItem>, Void, Movi
 {
     private Context mContext;
 
+    private FetchMovieTask.FetchComplete completed;
+
     public FetchMovieDetailsTask(Context context)
     {
         this.mContext = context;
+    }
+
+    public void setFetchMovieCompleted(FetchMovieTask.FetchComplete completeHandler)
+    {
+        this.completed = completeHandler;
     }
 
     @Override
@@ -54,6 +61,7 @@ public class FetchMovieDetailsTask extends AsyncTask<List<MovieItem>, Void, Movi
         return null;
     }
     protected void onPostExecute(MovieItem movie) {
+        this.completed.FetchComplete();
         //to be decided
         //here is where we would load the data into the db
 

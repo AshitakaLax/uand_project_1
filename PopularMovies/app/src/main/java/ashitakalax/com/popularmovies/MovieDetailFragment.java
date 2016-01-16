@@ -2,6 +2,7 @@ package ashitakalax.com.popularmovies;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -55,6 +56,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     static final int COL_MOVIE_OVERVIEW = 4;
     static final int COL_MOVIE_VOTE = 5;
     static final int COL_MOVIE_RELEASE_DATE = 6;
+    static final int COL_MOVIE_IS_FAVORITE = 6;
+
+
     static final int REVIEW_COL_ROW_ID = 0;
     static final int REVIEW_COL_AUTHOR = 1;
     static final int REVIEW_COL_CONTENT = 2;
@@ -81,6 +85,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
             MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
+            MovieContract.MovieEntry.COLUMN_IS_FAVORITE,
     };
     private static final String[] REVIEW_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -108,7 +113,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     /**
      * The dummy content this fragment is presenting.
      */
-    private int mMovieId;
+    private String mMovieId;
     private MovieItem mItem;
     private Button favoriteButton;
     private ListView mTrailerListView;
@@ -155,6 +160,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         mReviewLayout = (LinearLayout)rootView.findViewById(R.id.reviewsLayout);
         mTrailerListView = (ListView)rootView.findViewById(R.id.TrailersListView);
+
+        this.favoriteButton = (Button)rootView.findViewById(R.id.favoriteButton);
+        this.favoriteButton.setOnClickListener(this);
         //mReviewListView = (ListView)rootView.findViewById(R.id.ReviewListView);
 
         this.mTrailerAdapter = new TrailerAdapter(getActivity(), null, 0);
@@ -206,21 +214,25 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     public boolean isMovieFavorite()
     {
-        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
-
-        //this is a string set of movie id's only not of anything else
-
-        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
-
-        //check by movie id
-        for (String item: favoriteMovies) {
-            int movieId = Integer.parseInt(item);
-            if(this.mItem.getId() == movieId)
-            {
-                return  true;
-            }
-        }
-        return  false;
+        //check the string of the button
+        return this.favoriteButton.getText().equals("Remove from Favorites");
+//
+//
+//        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
+//
+//        //this is a string set of movie id's only not of anything else
+//
+//        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
+//
+//        //check by movie id
+//        for (String item: favoriteMovies) {
+//            int movieId = Integer.parseInt(item);
+//            if(this.mItem.getId() == movieId)
+//            {
+//                return  true;
+//            }
+//        }
+//        return  false;
     }
 
 
@@ -229,51 +241,66 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onClick(View view) {
 
-        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
-        //this is a string set of movie id's only not of anything else
-        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
+        //check if the current movie is a favorite or not
 
-        if(!isMovieFavorite())
-        {
-            //add to list of favorites and update shared preferences
-            favoriteMovies.add(this.mItem.getId() + "");
+        ContentValues movieValues = new ContentValues();
 
-            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
-            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-            editor.commit();
-            this.updateFavoriteButtonText(true);
-        }
-        else
-        {
-//            String[] favoriteIdStrs = new String[];
-//            favoriteMovies.toArray(favoriteIdStrs);
-            List<String> favoriteMovieArrayList =  new ArrayList<String>();
-            String[] favoriteIdStrs = favoriteMovies.toArray(new String[favoriteMovies.size()]);
-            favoriteMovieArrayList.addAll(Arrays.asList(favoriteIdStrs));
-            //favoriteMovieArrayList.addAll(favoriteIdStrs);
-            for(int i = 0; i < favoriteMovieArrayList.size(); i++)
-            {
-                int movieId = Integer.parseInt(favoriteMovieArrayList.get(i));
+        movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, this.mMovieId);
+        boolean updatedFavoriteValue = !isMovieFavorite();
 
-                if(this.mItem.getId() == movieId)
-                {
-                    //remove the item from the favorites
-                    favoriteMovieArrayList.remove(i);
-                    break;
-                }
-            }
+        movieValues.put(MovieContract.MovieEntry.COLUMN_IS_FAVORITE, updatedFavoriteValue);
+        updateFavoriteButtonText(updatedFavoriteValue);
 
-            //convert the list back into favorite moves set
-            favoriteMovies.clear();
-            favoriteMovies.addAll(favoriteMovieArrayList);
-            //save back into shared preferences
-            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
-            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-            editor.commit();
+        this.getContext().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, movieValues, "movId="+this.mMovieId, null);
 
-            this.updateFavoriteButtonText(false);
+        return;
 
-        }
+
+//        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
+//        //this is a string set of movie id's only not of anything else
+//        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
+//
+//        if(!isMovieFavorite())
+//        {
+//            //add to list of favorites and update shared preferences
+//            favoriteMovies.add(this.mItem.getId() + "");
+//
+//            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
+//            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
+//            editor.commit();
+//            this.updateFavoriteButtonText(true);
+//        }
+//        else
+//        {
+////            String[] favoriteIdStrs = new String[];
+////            favoriteMovies.toArray(favoriteIdStrs);
+//            List<String> favoriteMovieArrayList =  new ArrayList<String>();
+//            String[] favoriteIdStrs = favoriteMovies.toArray(new String[favoriteMovies.size()]);
+//            favoriteMovieArrayList.addAll(Arrays.asList(favoriteIdStrs));
+//            //favoriteMovieArrayList.addAll(favoriteIdStrs);
+//            for(int i = 0; i < favoriteMovieArrayList.size(); i++)
+//            {
+//                int movieId = Integer.parseInt(favoriteMovieArrayList.get(i));
+//
+//                if(this.mItem.getId() == movieId)
+//                {
+//                    //remove the item from the favorites
+//                    favoriteMovieArrayList.remove(i);
+//                    break;
+//                }
+//            }
+//
+//            //convert the list back into favorite moves set
+//            favoriteMovies.clear();
+//            favoriteMovies.addAll(favoriteMovieArrayList);
+//            //save back into shared preferences
+//            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
+//            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
+//            editor.commit();
+//
+//            this.updateFavoriteButtonText(false);
+//
+//        }
 
     }
 
@@ -285,18 +312,21 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         if (intent == null) {
             return null;
         }
+
+        Uri movieUri = intent.getData();
+        this.mMovieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
+
+
         if (id == DETAIL_LOADER) {
             return new CursorLoader(getActivity(),
-                    intent.getData(),
+                    movieUri,
                     MOVIE_COLUMNS,
                     null,
                     null,
                     null
             );
         } else if (id == REVIEW_LOADER) {
-            Uri movieUri = intent.getData();
-            String movieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
-            Uri ReviewUri = MovieContract.ReviewEntry.buildMovieReview(movieId);
+            Uri ReviewUri = MovieContract.ReviewEntry.buildMovieReview(this.mMovieId);
             return new CursorLoader(getActivity(),
                     ReviewUri,
                     REVIEW_COLUMNS,
@@ -305,9 +335,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     null
             );
         } else if (id == TRAILER_LOADER) {
-            Uri movieUri = intent.getData();
-            String movieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
-            Uri TrailerUri = MovieContract.TrailerEntry.buildMovieTrailer(movieId);
+            Uri TrailerUri = MovieContract.TrailerEntry.buildMovieTrailer(this.mMovieId);
             return new CursorLoader(getActivity(),
                     TrailerUri,
                     TRAILER_COLUMNS,
@@ -316,7 +344,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     null
             );
         }
-
         return null;
     }
 
@@ -400,6 +427,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         double movieRating = data.getDouble(COL_MOVIE_VOTE);
 
+        int boolValue = data.getInt(COL_MOVIE_IS_FAVORITE);
+        boolean movieIsFavorite = boolValue>0;
+
         //get the data from the cursor
         TextView titleTextView = (TextView) getView().findViewById(R.id.titleTextView);
         TextView releaseDateTextView = (TextView) getView().findViewById(R.id.releaseDateTextView);
@@ -432,6 +462,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             String imageUrl = "http://image.tmdb.org/t/p/w185" + moviePoster;
             Picasso.with(getContext()).load(imageUrl).into(posterImageView);
         }
+
+        if(this.favoriteButton != null)
+        {
+            this.updateFavoriteButtonText(movieIsFavorite);
+
+        }
+
     }
 
 }

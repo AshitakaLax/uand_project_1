@@ -17,7 +17,7 @@ import ashitakalax.com.popularmovies.movie.MovieContract.TrailerEntry;
 public class MovieDbHelper extends SQLiteOpenHelper
 {
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 8;
 
     public static final String DATABASE_NAME = "movie.db";
 
@@ -44,7 +44,8 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL  NOT NULL," +
                 MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, " +
-                MovieEntry.COLUMN_IS_FAVORITE + " BOOLEAN, " + // Slot for favorites
+                MovieEntry.COLUMN_IS_FAVORITE + " BOOLEAN, " +
+                MovieEntry.COLUMN_POPULARITY + " REAL NOT NULL, " + // Slot for favorites
                 "UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE" +
                 " );";
 

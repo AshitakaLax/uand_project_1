@@ -36,11 +36,23 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
 
     private FetchMovieDetailsTask fetchMovieDetailsTask;
 
+
+    public interface FetchComplete
+    {
+        void FetchComplete();
+    }
+    private FetchComplete completed;
+
     public FetchMovieTask(Context context)
     {
         this.mContext = context;
+
     }
 
+    public void setFetchMovieCompleted(FetchComplete completeHandler)
+    {
+        this.completed = completeHandler;
+    }
 
     @Override
     protected String doInBackground(String... sortType) {
@@ -55,6 +67,10 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
             final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/discover/movie?";
             final String SORT_PARAM = "sort_by";
             final String APPID_PARAM = "api_key";
+            final String MIN_VOTE_COUNT_PARAM = "vote_count.gte";
+            //to make the results better we are filtering out any movies that don't have at least
+            // 20 vote counts vote_count.gte=20&
+            String minVoteCount = "20";
 
             String sortString = "popularity.desc";
             if(sortType[0].equals(SORT_BY_RATING))
@@ -64,6 +80,7 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
 
             Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
                     .appendQueryParameter(SORT_PARAM, sortString)
+                    .appendQueryParameter(MIN_VOTE_COUNT_PARAM, minVoteCount)
                     .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
                     .build();
 
@@ -134,6 +151,7 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
 //
 //        setupArrayAdapter(this.movieItemList);
         this.fetchMovieDetailsTask = new FetchMovieDetailsTask(this.mContext);
+        this.fetchMovieDetailsTask.setFetchMovieCompleted(this.completed);
         this.fetchMovieDetailsTask.execute(this.movieItemList);
 
     }
