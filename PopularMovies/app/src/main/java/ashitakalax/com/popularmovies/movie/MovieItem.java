@@ -187,6 +187,7 @@ public class MovieItem implements Parcelable{
         final String MOVIE_RATING = "vote_average";
         final String MOVIE_RELEASE_DATE = "release_date";
         final String MOVIE_POSTER_URL = "poster_path";
+        final String MOVIE_IS_FAVORITE = "is_favorite";
 
         JSONObject movieQueryJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = movieQueryJson.getJSONArray(MOVIE_LIST);
@@ -222,6 +223,7 @@ public class MovieItem implements Parcelable{
             movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, item.getUserRating());
             movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, item.getReleaseDate());
             movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, item.getImageUrl());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_IS_FAVORITE, false);
 
 
             movieVector.add(movieValues);

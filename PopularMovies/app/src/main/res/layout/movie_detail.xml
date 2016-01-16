@@ -155,12 +155,16 @@
                     android:layout_marginLeft="16dp"
                     android:layout_marginRight="16dp"
                     android:orientation="vertical" >
-                    <ListView
-                        android:id="@+id/ReviewListView"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:text="Review"
+                        android:id="@+id/reviewLabelTextView"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
+                        android:layout_centerVertical="true" />
 
-                    </ListView>
                 </LinearLayout>
             </LinearLayout>
 

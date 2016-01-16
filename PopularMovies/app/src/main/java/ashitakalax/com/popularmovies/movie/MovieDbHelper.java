@@ -17,7 +17,7 @@ import ashitakalax.com.popularmovies.movie.MovieContract.TrailerEntry;
 public class MovieDbHelper extends SQLiteOpenHelper
 {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 5;
 
     public static final String DATABASE_NAME = "movie.db";
 
@@ -44,7 +44,7 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 MovieEntry.COLUMN_VOTE_AVERAGE + " REAL  NOT NULL," +
                 MovieEntry.COLUMN_RELEASE_DATE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, " +
-                //MovieEntry.COLUMN_POSTER_URL + " TEXT NOT NULL, " + // Slot for favorites
+                MovieEntry.COLUMN_IS_FAVORITE + " BOOLEAN, " + // Slot for favorites
                 "UNIQUE (" + MovieEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE" +
                 " );";
 
@@ -60,6 +60,8 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 TrailerEntry.COLUMN_TRAILER_TITLE + " TEXT NOT NULL," +
                 TrailerEntry.COLUMN_TRAILER_URL + " TEXT NOT NULL," +
                 TrailerEntry.COLUMN_TRAILER_HOST + " TEXT NOT NULL," +
+                " UNIQUE (" + TrailerEntry.COLUMN_TRAILER_ID + ") ON CONFLICT REPLACE," +
+
                 // the ID of the location entry associated with this weather data
                 // Set up the location column as a foreign key to location table.
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
@@ -77,6 +79,7 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 ReviewEntry.COLUMN_REVIEW_AUTHOR + " TEXT," +
                 ReviewEntry.COLUMN_REVIEW_URL + " TEXT," +
                 ReviewEntry.COLUMN_REVIEW_CONTENT + " TEXT," +
+                " UNIQUE (" + ReviewEntry.COLUMN_REVIEW_ID + ") ON CONFLICT REPLACE," +
                 // the ID of the location entry associated with this weather data
                 // Set up the location column as a foreign key to location table.
                 " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +

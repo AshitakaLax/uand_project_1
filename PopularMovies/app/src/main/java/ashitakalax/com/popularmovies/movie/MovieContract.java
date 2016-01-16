@@ -48,12 +48,13 @@ public class MovieContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
         public static final String TABLE_NAME = "movies";
-        public static final String COLUMN_MOVIE_ID = "id";
+        public static final String COLUMN_MOVIE_ID = "movId";
         public static final String COLUMN_MOVIE_TITLE = "original_title";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_VOTE_AVERAGE = "vote_average";
         public static final String COLUMN_RELEASE_DATE = "release_date";
         public static final String COLUMN_POSTER_URL = "poster_path";
+        public static final String COLUMN_IS_FAVORITE = "is_favorite";
 
 
         public static Uri buildMovieUri(long id) {
@@ -78,7 +79,7 @@ public class MovieContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILERS;
 
         public static final String TABLE_NAME = "trailers";
-        public static final String COLUMN_TRAILER_ID = "id";
+        public static final String COLUMN_TRAILER_ID = "strId";
         public static final String COLUMN_TRAILER_TITLE = "name";
         public static final String COLUMN_TRAILER_URL = "key";
         public static final String COLUMN_TRAILER_HOST = "site";
@@ -109,7 +110,7 @@ public class MovieContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
         public static final String TABLE_NAME = "reviews";
-        public static final String COLUMN_REVIEW_ID = "id";
+        public static final String COLUMN_REVIEW_ID = "strId";
         public static final String COLUMN_REVIEW_AUTHOR = "key";
         public static final String COLUMN_REVIEW_URL = "url";
         public static final String COLUMN_REVIEW_CONTENT = "content";

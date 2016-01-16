@@ -41,8 +41,9 @@ public class ReviewAdapter extends CursorAdapter {
 
         TextView reviewTextView = (TextView) view.findViewById(R.id.reviewLabelTextView);
 
+        String authorStr = cursor.getString(MovieDetailFragment.REVIEW_COL_AUTHOR);
         String reviewStr = cursor.getString(MovieDetailFragment.REVIEW_COL_CONTENT);
-        reviewTextView.setText("Review: " + reviewStr );
+        reviewTextView.setText( authorStr + ": " + reviewStr );
 
 
     }

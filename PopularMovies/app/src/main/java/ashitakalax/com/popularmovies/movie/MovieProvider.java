@@ -21,6 +21,9 @@ public class MovieProvider extends ContentProvider {
     private static final SQLiteQueryBuilder sReviewsByMovieIdQueryBuilder;
     private static final SQLiteQueryBuilder sTrailersByMovieIdQueryBuilder;
     private static final SQLiteQueryBuilder sMovieByIdQueryBuilder;
+    private static final SQLiteQueryBuilder sFavoriteMoviesQueryBuilder;
+
+
     //location.location_setting = ?
     //reviews.movieId = ?
     private static final String sMovieReviewSelection =
@@ -32,6 +35,7 @@ public class MovieProvider extends ContentProvider {
     private static final String sMovieIdSelection =
             MovieContract.MovieEntry.TABLE_NAME +
                     "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID + " = ? ";
+
 
     static{
         sReviewsByMovieIdQueryBuilder = new SQLiteQueryBuilder();
@@ -75,6 +79,14 @@ public class MovieProvider extends ContentProvider {
                         "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID);
     }
 
+    static
+    {
+        sFavoriteMoviesQueryBuilder = new SQLiteQueryBuilder();
+        //this is a select statement on for all the
+        sFavoriteMoviesQueryBuilder.setTables(
+                MovieContract.MovieEntry.TABLE_NAME + " WHERE " +
+                        MovieContract.MovieEntry.COLUMN_IS_FAVORITE);
+    }
     private MovieDbHelper mOpenHelper;
 
     public MovieProvider() {
