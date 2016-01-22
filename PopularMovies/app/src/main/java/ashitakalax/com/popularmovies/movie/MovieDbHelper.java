@@ -17,7 +17,7 @@ import ashitakalax.com.popularmovies.movie.MovieContract.TrailerEntry;
 public class MovieDbHelper extends SQLiteOpenHelper
 {
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 10;
 
     public static final String DATABASE_NAME = "movie.db";
 
@@ -86,12 +86,24 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "));";
 
+        final String SQL_CREATE_FAVORITES_TABLE = "CREATE TABLE " + MovieContract.FavoritesEntry.TABLE_NAME + " (" +
+                // Why AutoIncrement here, and not above?
+                // Unique keys will be auto-generated in either case.  But for weather
+                // forecasting, it's reasonable to assume the user will want information
+                // for a certain date and all dates *following*, so the forecast data
+                // should be sorted accordingly.
+                MovieContract.FavoritesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +//these are integers
+                MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL," +//these are integers
+                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
+                MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "));";
+
 
 
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIE_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_TRAILER_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_REVIEW_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_FAVORITES_TABLE);
     }
 
     @Override
@@ -105,6 +117,7 @@ public class MovieDbHelper extends SQLiteOpenHelper
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TrailerEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieContract.FavoritesEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }

@@ -56,7 +56,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     static final int COL_MOVIE_OVERVIEW = 4;
     static final int COL_MOVIE_VOTE = 5;
     static final int COL_MOVIE_RELEASE_DATE = 6;
-    static final int COL_MOVIE_IS_FAVORITE = 6;
+    static final int COL_MOVIE_IS_FAVORITE = 7;
 
 
     static final int REVIEW_COL_ROW_ID = 0;
@@ -153,6 +153,16 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
+    public void onResume() {
+
+        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
+        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
+
+        super.onResume();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         reviewIds = new ArrayList<>();
@@ -179,9 +189,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
-        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
+//        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+//        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
+//        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
 
         super.onActivityCreated(savedInstanceState);
 
@@ -216,23 +226,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     {
         //check the string of the button
         return this.favoriteButton.getText().equals("Remove from Favorites");
-//
-//
-//        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
-//
-//        //this is a string set of movie id's only not of anything else
-//
-//        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
-//
-//        //check by movie id
-//        for (String item: favoriteMovies) {
-//            int movieId = Integer.parseInt(item);
-//            if(this.mItem.getId() == movieId)
-//            {
-//                return  true;
-//            }
-//        }
-//        return  false;
     }
 
 
@@ -249,59 +242,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         boolean updatedFavoriteValue = !isMovieFavorite();
 
         movieValues.put(MovieContract.MovieEntry.COLUMN_IS_FAVORITE, updatedFavoriteValue);
-        updateFavoriteButtonText(updatedFavoriteValue);
-
         this.getContext().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, movieValues, "movId="+this.mMovieId, null);
 
         return;
-
-
-//        SharedPreferences prefs = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE);
-//        //this is a string set of movie id's only not of anything else
-//        Set<String> favoriteMovies = prefs.getStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, new TreeSet<String>());
-//
-//        if(!isMovieFavorite())
-//        {
-//            //add to list of favorites and update shared preferences
-//            favoriteMovies.add(this.mItem.getId() + "");
-//
-//            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
-//            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-//            editor.commit();
-//            this.updateFavoriteButtonText(true);
-//        }
-//        else
-//        {
-////            String[] favoriteIdStrs = new String[];
-////            favoriteMovies.toArray(favoriteIdStrs);
-//            List<String> favoriteMovieArrayList =  new ArrayList<String>();
-//            String[] favoriteIdStrs = favoriteMovies.toArray(new String[favoriteMovies.size()]);
-//            favoriteMovieArrayList.addAll(Arrays.asList(favoriteIdStrs));
-//            //favoriteMovieArrayList.addAll(favoriteIdStrs);
-//            for(int i = 0; i < favoriteMovieArrayList.size(); i++)
-//            {
-//                int movieId = Integer.parseInt(favoriteMovieArrayList.get(i));
-//
-//                if(this.mItem.getId() == movieId)
-//                {
-//                    //remove the item from the favorites
-//                    favoriteMovieArrayList.remove(i);
-//                    break;
-//                }
-//            }
-//
-//            //convert the list back into favorite moves set
-//            favoriteMovies.clear();
-//            favoriteMovies.addAll(favoriteMovieArrayList);
-//            //save back into shared preferences
-//            SharedPreferences.Editor editor = this.getActivity().getSharedPreferences(MovieGridActivity.MOVIE_SHARE_PREF_FILE, Activity.MODE_PRIVATE).edit();
-//            editor.putStringSet(MovieGridActivity.FAVORITE_MOVIES_SHARE_PREF_FILE, favoriteMovies);
-//            editor.commit();
-//
-//            this.updateFavoriteButtonText(false);
-//
-//        }
-
     }
 
     @Override
@@ -427,6 +370,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         double movieRating = data.getDouble(COL_MOVIE_VOTE);
 
+        int rowId = data.getInt(COL_ID);
         int boolValue = data.getInt(COL_MOVIE_IS_FAVORITE);
         boolean movieIsFavorite = boolValue>0;
 

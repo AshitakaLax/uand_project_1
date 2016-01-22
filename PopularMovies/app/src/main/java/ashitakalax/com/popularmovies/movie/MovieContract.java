@@ -30,6 +30,7 @@ public class MovieContract {
     public static final String PATH_MOVIE = "movie";
     public static final String PATH_REVIEWS = "reviews";
     public static final String PATH_TRAILERS = "trailers";
+    public static final String PATH_FAVORITES = "favorites";
 
     // Possible paths (appended to base content URI for possible URI's)
     // For instance, content://com.example.android.sunshine.app/weather/ is a valid path for
@@ -126,6 +127,31 @@ public class MovieContract {
          * @return uri for the query
          */
         public static Uri buildMovieReview(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        }
+
+    }
+    public static final class FavoritesEntry implements BaseColumns{
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVORITES).build();
+
+        public static final String CONTENT_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
+        public static final String TABLE_NAME = "favorites";
+        public static final String COLUMN_MOVIE_KEY = "movies";
+
+        public static Uri buildFavoriteUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+        /**
+         * This is the uri for querying a specific list of reviews for a movie
+         * @param movieId of the reviwes to be returns
+         * @return uri for the query
+         */
+        public static Uri buildMovieFavorite(String movieId) {
             return CONTENT_URI.buildUpon().appendPath(movieId).build();
         }
 
