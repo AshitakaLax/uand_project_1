@@ -141,7 +141,7 @@ public class MovieContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_FAVORITES;
         public static final String TABLE_NAME = "favorites";
-        public static final String COLUMN_MOVIE_KEY = "movies";
+        public static final String COLUMN_MOVIE_KEY = "movieId";
 
         public static Uri buildFavoriteUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
@@ -151,10 +151,9 @@ public class MovieContract {
          * @param movieId of the reviwes to be returns
          * @return uri for the query
          */
-        public static Uri buildMovieFavorite(String movieId) {
-            return CONTENT_URI.buildUpon().appendPath(movieId).build();
+        public static Uri buildFavoriteMovies() {
+            return CONTENT_URI.buildUpon().appendPath("*").build();
         }
-
     }
 
 }

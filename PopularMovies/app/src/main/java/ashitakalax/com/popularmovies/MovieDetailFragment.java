@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 
 import ashitakalax.com.popularmovies.movie.MovieContract;
 import ashitakalax.com.popularmovies.movie.MovieItem;
@@ -56,7 +57,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     static final int COL_MOVIE_OVERVIEW = 4;
     static final int COL_MOVIE_VOTE = 5;
     static final int COL_MOVIE_RELEASE_DATE = 6;
-    static final int COL_MOVIE_IS_FAVORITE = 7;
 
 
     static final int REVIEW_COL_ROW_ID = 0;
@@ -84,8 +84,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             MovieContract.MovieEntry.COLUMN_MOVIE_TITLE,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE,
-            MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_IS_FAVORITE,
+            MovieContract.MovieEntry.COLUMN_RELEASE_DATE
     };
     private static final String[] REVIEW_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
@@ -132,6 +131,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+
         outState.putParcelable("movies", mItem);
         super.onSaveInstanceState(outState);
     }
@@ -139,17 +139,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         return;
-//        this.mItem  = this.getArguments().getParcelable(ARG_MOVIE_BUNDLE_ID);
-//
-//        if(this.mItem == null && savedInstanceState == null) {
-//            mItem = new MovieItem();
-//        }
-//
-//        Activity activity = this.getActivity();
-//        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-//        if (appBarLayout != null) {
-//            appBarLayout.setTitle("Movie Detail");
-//        }
     }
 
     @Override
@@ -163,25 +152,29 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             Bundle savedInstanceState)
+    {
         reviewIds = new ArrayList<>();
+
         View rootView = inflater.inflate(R.layout.movie_detail, container, false);
 
+        this.favoriteButton = (Button) rootView.findViewById(R.id.favoriteButton);
         mReviewLayout = (LinearLayout)rootView.findViewById(R.id.reviewsLayout);
         mTrailerListView = (ListView)rootView.findViewById(R.id.TrailersListView);
 
         this.favoriteButton = (Button)rootView.findViewById(R.id.favoriteButton);
         this.favoriteButton.setOnClickListener(this);
-        //mReviewListView = (ListView)rootView.findViewById(R.id.ReviewListView);
 
         this.mTrailerAdapter = new TrailerAdapter(getActivity(), null, 0);
         mTrailerListView.setAdapter(mTrailerAdapter);
         TextView reviewTextView = (TextView) this.mReviewLayout.findViewById(R.id.reviewLabelTextView);
         reviewTextView.setText("");
-        //this.mReviewAdapter = new ReviewAdapter(getActivity(), null, 0);
-        //mReviewListView.setAdapter(this.mReviewAdapter);
-
 
         return rootView;
     }
@@ -235,14 +228,26 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onClick(View view) {
 
         //check if the current movie is a favorite or not
+        //add movie to the favories table in the db
 
-        ContentValues movieValues = new ContentValues();
-
-        movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, this.mMovieId);
         boolean updatedFavoriteValue = !isMovieFavorite();
 
-        movieValues.put(MovieContract.MovieEntry.COLUMN_IS_FAVORITE, updatedFavoriteValue);
-        this.getContext().getContentResolver().update(MovieContract.MovieEntry.CONTENT_URI, movieValues, "movId="+this.mMovieId, null);
+        if(updatedFavoriteValue)
+        {
+            ContentValues favoriteValues = new ContentValues();
+
+            //add movieId to the table
+            favoriteValues.put(MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY, this.mMovieId);
+
+            this.getContext().getContentResolver().insert(MovieContract.FavoritesEntry.CONTENT_URI, favoriteValues);
+        }
+        else
+        {
+            //remove the movieId from the table
+            this.getContext().getContentResolver().delete(MovieContract.FavoritesEntry.CONTENT_URI,MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY + "=?", new String[]{this.mMovieId});
+        }
+        updateFavoriteButtonText(updatedFavoriteValue);
+
 
         return;
     }
@@ -258,9 +263,32 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         Uri movieUri = intent.getData();
         this.mMovieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
-
+        //store the movie
+        Utility.setSelectedMovie(getContext(), Long.parseLong(mMovieId));
 
         if (id == DETAIL_LOADER) {
+
+            //just do a simple query to determine if it is a favorite
+            Cursor favoriteCursor = this.getContext().getContentResolver().query(
+                    MovieContract.FavoritesEntry.CONTENT_URI,
+                    null,
+                    MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY + "=?",
+                    new String[]{this.mMovieId},
+                    null);
+
+
+            if(favoriteCursor.getCount() == 0)
+            {
+                //it isn't a favorite
+                this.updateFavoriteButtonText(false);
+            }
+            else
+            {
+                //it isn't a favorite
+                this.updateFavoriteButtonText(true);
+            }
+            favoriteCursor.close();
+
             return new CursorLoader(getActivity(),
                     movieUri,
                     MOVIE_COLUMNS,
@@ -287,6 +315,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     null
             );
         }
+
         return null;
     }
 
@@ -371,8 +400,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         double movieRating = data.getDouble(COL_MOVIE_VOTE);
 
         int rowId = data.getInt(COL_ID);
-        int boolValue = data.getInt(COL_MOVIE_IS_FAVORITE);
-        boolean movieIsFavorite = boolValue>0;
 
         //get the data from the cursor
         TextView titleTextView = (TextView) getView().findViewById(R.id.titleTextView);
@@ -381,7 +408,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         TextView movieRatingTextView = (TextView) getView().findViewById(R.id.movieRatingTextView);
         TextView movieOverviewTextView = (TextView) getView().findViewById(R.id.movieOverviewTextView);
         ImageView posterImageView = (ImageView) getView().findViewById(R.id.moviePosterImageView);
-        this.favoriteButton = (Button) getView().findViewById(R.id.favoriteButton);
         LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
         LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
 
@@ -406,13 +432,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             String imageUrl = "http://image.tmdb.org/t/p/w185" + moviePoster;
             Picasso.with(getContext()).load(imageUrl).into(posterImageView);
         }
-
-        if(this.favoriteButton != null)
-        {
-            this.updateFavoriteButtonText(movieIsFavorite);
-
-        }
-
     }
 
 }

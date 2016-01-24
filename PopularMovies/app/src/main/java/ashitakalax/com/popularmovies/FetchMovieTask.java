@@ -77,6 +77,11 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
             {
                 sortString = "vote_average.desc";
             }
+            else if(sortType[0].equals(SORT_BY_FAVORITES))
+            {
+                //this means we have all the movies in the database and we just need to do a special query for the favorites
+                return "";//just return and don't load anything here
+            }
 
             Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
                     .appendQueryParameter(SORT_PARAM, sortString)
@@ -140,6 +145,7 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
     protected void onPostExecute(String result) {
         if(result == null || result.isEmpty())
         {
+            this.completed.FetchComplete();
         //    mNoInternetTextView.setVisibility(View.VISIBLE);
             return;//can't setup array adapter without any data
         }

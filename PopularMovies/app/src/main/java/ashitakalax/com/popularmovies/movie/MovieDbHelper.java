@@ -17,7 +17,7 @@ import ashitakalax.com.popularmovies.movie.MovieContract.TrailerEntry;
 public class MovieDbHelper extends SQLiteOpenHelper
 {
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
 
     public static final String DATABASE_NAME = "movie.db";
 
@@ -93,8 +93,8 @@ public class MovieDbHelper extends SQLiteOpenHelper
                 // for a certain date and all dates *following*, so the forecast data
                 // should be sorted accordingly.
                 MovieContract.FavoritesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +//these are integers
-                MovieContract.ReviewEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL," +//these are integers
-                " FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
+                MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL," +//these are integers
+                " FOREIGN KEY (" + MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry._ID + "));";
 
 

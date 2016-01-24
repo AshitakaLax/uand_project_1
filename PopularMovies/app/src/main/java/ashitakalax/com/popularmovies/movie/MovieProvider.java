@@ -18,6 +18,7 @@ public class MovieProvider extends ContentProvider {
     static final int TRAILERS = 300;
     static final int REVIEWS = 400;//do these mean anything?
     static final int FAVORITES = 500;
+    static final int FAVORITES_MOVIES = 501;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final SQLiteQueryBuilder sReviewsByMovieIdQueryBuilder;
     private static final SQLiteQueryBuilder sTrailersByMovieIdQueryBuilder;
@@ -83,10 +84,17 @@ public class MovieProvider extends ContentProvider {
     static
     {
         sFavoriteMoviesQueryBuilder = new SQLiteQueryBuilder();
-        //this is a select statement on for all the
+
+        //This is an inner join which looks like
+        //reviews INNER JOIN movie ON reviews.review_id = movie.review_id
         sFavoriteMoviesQueryBuilder.setTables(
-                MovieContract.MovieEntry.TABLE_NAME + " WHERE " +
-                        MovieContract.MovieEntry.COLUMN_IS_FAVORITE);
+                MovieContract.MovieEntry.TABLE_NAME + " INNER JOIN " +
+                        MovieContract.FavoritesEntry.TABLE_NAME +
+                        " ON " + MovieContract.MovieEntry.TABLE_NAME +
+                        "." + MovieContract.MovieEntry.COLUMN_MOVIE_ID +
+                        " = " + MovieContract.FavoritesEntry.TABLE_NAME +
+                        "." + MovieContract.FavoritesEntry.COLUMN_MOVIE_KEY);
+
     }
     private MovieDbHelper mOpenHelper;
 
@@ -101,13 +109,11 @@ public class MovieProvider extends ContentProvider {
         matcher.addURI(authority, MovieContract.PATH_MOVIE, MOVIES);
         matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILERS);
         matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEWS);
+        matcher.addURI(authority, MovieContract.PATH_FAVORITES, FAVORITES);
         matcher.addURI(authority, MovieContract.PATH_MOVIE + "/*", MOVIES_WITH_ID);//querying a specific movie
         matcher.addURI(authority, MovieContract.PATH_REVIEWS + "/*", MOVIES_WITH_REVIEWS);
         matcher.addURI(authority, MovieContract.PATH_TRAILERS + "/*", MOVIES_WITH_TRAILERS);
-//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*", WEATHER_WITH_LOCATION);
-//        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/*/#", WEATHER_WITH_LOCATION_AND_DATE);
-//
-//        matcher.addURI(authority, WeatherContract.PATH_LOCATION, LOCATION);
+        matcher.addURI(authority, MovieContract.PATH_FAVORITES + "/*", FAVORITES_MOVIES);//querying a specific movie
         return matcher;
     }
 
@@ -132,10 +138,6 @@ public class MovieProvider extends ContentProvider {
 
     private Cursor getTrailersByMovieId(Uri uri, String[] projection, String sortOrder) {
         String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
-        //don't think this is needed
-//        long startDate = MovieContract.MovieEntry.getStartDateFromUri(uri);
-//        long startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
-
         String[] selectionArgs;
         String selection;
 
@@ -146,6 +148,19 @@ public class MovieProvider extends ContentProvider {
                 projection,
                 selection,
                 selectionArgs,
+                null,
+                null,
+                sortOrder
+        );
+    }
+
+    private Cursor getFavoritesByMovieId(Uri uri, String[] projection, String sortOrder) {
+        String movieIdStr = MovieContract.MovieEntry.getMovieIdFromUri(uri);
+
+        return sFavoriteMoviesQueryBuilder.query(mOpenHelper.getReadableDatabase(),
+                projection,
+                null,
+                null,
                 null,
                 null,
                 sortOrder
@@ -325,6 +340,10 @@ public class MovieProvider extends ContentProvider {
             case MOVIES_WITH_ID: {
                 retCursor = getMovieById(uri, projection, sortOrder);
 //                retCursor = mOpenHelper.getReadableDatabase().query(MovieContract.MovieEntry.TABLE_NAME, projection,selection, selectionArgs, null, null, sortOrder);
+                break;
+            }
+            case FAVORITES_MOVIES: {
+                retCursor = getFavoritesByMovieId(uri, projection, sortOrder);
                 break;
             }
             case TRAILERS: {

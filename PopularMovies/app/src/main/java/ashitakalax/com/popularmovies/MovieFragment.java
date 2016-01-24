@@ -66,12 +66,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.refresh_menu_option) {
-
-            this.updateMovieDb();
-            return true;
-        }
-        else if (id == R.id.sort_popularity) {
+        if (id == R.id.sort_popularity) {
             //todo change the location of the SORT_BY_POPULARITY to be a more suitable location
             Utility.setPreferredSortingType(getContext(), Utility.SORT_BY_POPULARITY);
             this.updateMovieDb();
@@ -111,17 +106,30 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if (cursor != null) {
                     Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                    intent.setData(MovieContract.MovieEntry.buildMovieUri(cursor.getInt(COL_MOVIE_ID)));
+
+                    Long movieId = (long)cursor.getInt(COL_MOVIE_ID);
+                    //store the movie
+                    intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
                     startActivity(intent);
                 }
             }
         });
+
         return rootView;
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        //check if there is a movie already selected before
+        Long movieId = Utility.getSelectedMovie(getContext());
+        if(movieId != -1)
+        {
+            //we alread have a selected movie load it up
+            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+            intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+            startActivity(intent);
+        }
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -129,6 +137,13 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onStart() {
         super.onStart();
         updateMovieDb();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //clear the data we return to this screan
+        Utility.setSelectedMovie(getContext(), -1);
     }
 
     private void updateMovieDb()
@@ -151,16 +166,15 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         String sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         String SelectionStr = null;
         String[] SelectionArgs = null;
-        if(sortingType == Utility.SORT_BY_RATING) {
+        if(sortingType.equals(Utility.SORT_BY_RATING)) {
 
             sortStr = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
         }
-        else if(sortingType == Utility.SORT_BY_FAVORITES) {
+        else if(sortingType.equals(Utility.SORT_BY_FAVORITES)) {
 
-            sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-            SelectionStr = MovieContract.MovieEntry.COLUMN_IS_FAVORITE + "=?";
-            SelectionArgs = new String[1];
-            SelectionArgs[0] = "TRUE";
+            movieUri = MovieContract.FavoritesEntry.buildFavoriteMovies();
+            sortStr = null;
+
         }
 
 

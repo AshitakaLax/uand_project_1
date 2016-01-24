@@ -14,4 +14,7 @@
     <string name="sort_by_rating">sort_by_rating</string>
     <string name="sort_by_favorites">sort_by_favorites</string>
 
+    <string name="pref_selected_movie">selected_movie</string>
+
+
 </resources>
