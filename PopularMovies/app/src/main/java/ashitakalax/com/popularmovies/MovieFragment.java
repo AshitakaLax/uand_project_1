@@ -46,6 +46,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
 
+    private boolean mTwoPane;
+
     public MovieFragment()
     {
 
@@ -93,11 +95,33 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
 
+        //here we want to do a json query to get the list of movies
+//        if(isNetworkAvailable()) {
+//            mNoInternetTextView.setVisibility(View.INVISIBLE);
+//            new downloadMovieList().execute(mSortTypeStr);
+//        }
+//        else
+//            mNoInternetTextView.setVisibility(View.VISIBLE);
+
+        //todo before we replace the viewgroup we need to know if the user
+        //is Two Pane. if so then we need to load a different container,
+
+
+
         this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.movie_grid, container, false);
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
+        this.mTwoPane = rootView.findViewById(R.id.movie_detail_container) != null;
+        if(this.mTwoPane) {
+            this.mGridView.setNumColumns(3);
+        }
+        else
+        {
+
+            this.mGridView.setNumColumns(2);
+        }
         this.mGridView.setAdapter(this.mMovieAdapter);
 
         this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -105,12 +129,22 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
             public void onItemClick(AdapterView parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if (cursor != null) {
-                    Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
 
-                    Long movieId = (long)cursor.getInt(COL_MOVIE_ID);
-                    //store the movie
-                    intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                    startActivity(intent);
+                    Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
+                    if(mTwoPane)
+                    {
+                        //load the fragment into the other container
+                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+                        MovieDetailFragment fragment = new MovieDetailFragment();
+
+                    }
+                    else {
+                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+
+                        //store the movie
+                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -123,13 +157,27 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         //check if there is a movie already selected before
         Long movieId = Utility.getSelectedMovie(getContext());
+
         if(movieId != -1)
         {
-            //we alread have a selected movie load it up
-            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-            intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-            startActivity(intent);
+            if(this.mTwoPane)
+            {
+                //load up the other page
+                //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
+                this.getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+                MovieDetailFragment fragment = new MovieDetailFragment();
+//                this.getActivity().getFragmentManager().beginTransaction()
+//                        .replace(R.id.movie_detail_container, fragment)
+//                        .commit();
+            }
+            else {
+                //we alread have a selected movie load it up
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+                startActivity(intent);
+            }
         }
+
         super.onActivityCreated(savedInstanceState);
     }
 
