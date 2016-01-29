@@ -22,11 +22,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
 
 import ashitakalax.com.popularmovies.movie.MovieContract;
 import ashitakalax.com.popularmovies.movie.MovieItem;
@@ -368,23 +363,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             String reviewStr = data.getString(MovieDetailFragment.REVIEW_COL_CONTENT);//todo update index
             reviewTextView.append( author +": " + reviewStr + "\n\n");
         }while(data.moveToNext());
-        return;
-//        if (!data.moveToFirst()) {
-//            return;
-//        }
-//
-//        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
-//                    int i = 0;
-//        do {
-//            View  custom = LayoutInflater.from(getContext()).inflate(R.layout.review_detail,reviewLayout, false);
-//            TextView reviewTextView = (TextView) custom.findViewById(R.id.reviewLabelTextView);
-//
-//            String reviewStr = data.getString(0);//todo update index
-//            reviewTextView.setText("Review: " + reviewStr );
-////            custom.setTag(review);
-//            reviewLayout.addView(custom);
-//        }while(data.moveToNext());
 
+        return;
     }
 
     private void loadMovieDetail(Cursor data) {
@@ -400,17 +380,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         double movieRating = data.getDouble(COL_MOVIE_VOTE);
 
-        int rowId = data.getInt(COL_ID);
-
         //get the data from the cursor
         TextView titleTextView = (TextView) getView().findViewById(R.id.titleTextView);
         TextView releaseDateTextView = (TextView) getView().findViewById(R.id.releaseDateTextView);
-        TextView movieTimeLengthTextView = (TextView) getView().findViewById(R.id.movieTimeLengthTextView);
         TextView movieRatingTextView = (TextView) getView().findViewById(R.id.movieRatingTextView);
         TextView movieOverviewTextView = (TextView) getView().findViewById(R.id.movieOverviewTextView);
         ImageView posterImageView = (ImageView) getView().findViewById(R.id.moviePosterImageView);
-        LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
-        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
 
         if (titleTextView != null) {
             titleTextView.setText(movieTitle);

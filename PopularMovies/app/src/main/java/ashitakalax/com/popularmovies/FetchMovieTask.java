@@ -31,7 +31,9 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
     public static final String SORT_BY_RATING = "sort_by_rating";
     public static final String SORT_BY_FAVORITES = "sort_by_favorites";
     public static final String SORT_TYPE = "sort_type";
-    public List<MovieItem> movieItemList = null;
+//    public List<MovieItem> movieItemList = null;
+    public List<Integer> movieItemList = null;
+
     private Context mContext;
 
     private FetchMovieDetailsTask fetchMovieDetailsTask;
@@ -146,16 +148,12 @@ public class FetchMovieTask  extends AsyncTask<String, Void, String>
         if(result == null || result.isEmpty())
         {
             this.completed.FetchComplete();
-        //    mNoInternetTextView.setVisibility(View.VISIBLE);
             return;//can't setup array adapter without any data
         }
 
         //it is unlikely that we want to pause till this is finished, so we will update the ui
         //first then do these things in the background
 
-//        mNoInternetTextView.setVisibility(View.INVISIBLE);
-//
-//        setupArrayAdapter(this.movieItemList);
         this.fetchMovieDetailsTask = new FetchMovieDetailsTask(this.mContext);
         this.fetchMovieDetailsTask.setFetchMovieCompleted(this.completed);
         this.fetchMovieDetailsTask.execute(this.movieItemList);

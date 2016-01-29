@@ -94,15 +94,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-
-        //here we want to do a json query to get the list of movies
-//        if(isNetworkAvailable()) {
-//            mNoInternetTextView.setVisibility(View.INVISIBLE);
-//            new downloadMovieList().execute(mSortTypeStr);
-//        }
-//        else
-//            mNoInternetTextView.setVisibility(View.VISIBLE);
-
         //todo before we replace the viewgroup we need to know if the user
         //is Two Pane. if so then we need to load a different container,
 
@@ -139,11 +130,12 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
                     }
                     else {
-                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                        Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
 
                         //store the movie
                         intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        startActivity(intent);
+                        MovieDetailFragment fragment = new MovieDetailFragment();
+                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
                     }
                 }
             }
@@ -171,8 +163,8 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 //                        .commit();
             }
             else {
-                //we alread have a selected movie load it up
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                //we already have a selected movie load it up
+                Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
                 intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
                 startActivity(intent);
             }

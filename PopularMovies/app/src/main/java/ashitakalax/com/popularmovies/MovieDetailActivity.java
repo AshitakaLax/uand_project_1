@@ -63,7 +63,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            navigateUpTo(new Intent(this, MovieGridActivity.class));
+            navigateUpTo(new Intent(this, MovieFragment.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
