@@ -27,21 +27,13 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
         android:baselineAligned="false"
         android:divider="?android:attr/dividerHorizontal"
         android:orientation="horizontal"
         android:showDividers="middle"
         tools:context="ashitakalax.com.popularmovies.MainMovieActivity">
-        <!--tools:context="com.example.balling.myapplication.ItemListActivity">-->
-
-
-    <!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="4"-->
-        <!--android:id="@+id/container">-->
 
         <FrameLayout
             android:id="@+id/movie_grid_container"
@@ -63,7 +55,6 @@
             </GridView>
 
         </FrameLayout>
-        <!--<include layout="@layout/movie_grid" />-->
 
         <FrameLayout
             android:id="@+id/movie_detail_container"
@@ -71,7 +62,6 @@
             android:layout_height="match_parent"
             android:layout_weight="3">
 
-            <!--<include layout="@layout/movie_detail" />-->
         </FrameLayout>
 
     </LinearLayout>

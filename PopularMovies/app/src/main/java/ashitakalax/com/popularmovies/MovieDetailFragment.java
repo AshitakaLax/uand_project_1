@@ -1,7 +1,6 @@
 package ashitakalax.com.popularmovies;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,8 +28,8 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
 
 /**
  * A fragment representing a single movie detail screen.
- * This fragment is either contained in a {@link MovieGridActivity}
- * in two-pane mode (on tablets) or a {@link MovieDetailActivity}
+ * This fragment is either contained in a {@link MainMovieActivity}
+ * in two-pane mode (on tablets) or a {@link MovieDetailFragment}
  * on handsets.
  */
 public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
@@ -108,10 +107,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private MovieItem mItem;
     private Button favoriteButton;
     private ListView mTrailerListView;
-    private ListView mReviewListView;
     private LinearLayout mReviewLayout;
     private TrailerAdapter mTrailerAdapter;
-    private ReviewAdapter mReviewAdapter;
     private ArrayList<String> reviewIds;
 
     /**
@@ -177,16 +174,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-//        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-//        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
-//        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
-
-        super.onActivityCreated(savedInstanceState);
-
-
-    }
 
     private void updateFavoriteButtonText(boolean isFavorite)
     {

@@ -1,17 +1,10 @@
 package ashitakalax.com.popularmovies;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -39,16 +32,14 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
                     .commit();
 
         } else {
-
-            Intent intent = new Intent(getParent(), MovieDetailFragment.class);
-
-
+            mDetailFragmentActive = true;
             Bundle arguments = new Bundle();
-            arguments.putLong(MOVIE_ID_BUNDLE,movieId );
-            //store the movie
-            intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+            arguments.putLong(MOVIE_ID_BUNDLE, movieId);
             MovieDetailFragment fragment = new MovieDetailFragment();
-//                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_grid_container, fragment)
+                    .commit();
         }
     }
 
@@ -76,6 +67,7 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
     private boolean mTwoPane;
+    private boolean mDetailFragmentActive;
 
 
     @Override
@@ -87,54 +79,9 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
         mTwoPane = false;
+        mDetailFragmentActive = false;
 
         View containerView = findViewById(R.id.container);
-
-
-        //check if this is 2 pane or 1
-//by default the movieFragment should be setup on launch
-
-        //load the movie adapter in it
-        //this.mMovieAdapter = new MovieAdapter(this, null, 0);
-
-//        this.mGridView = (GridView)findViewById(R.id.movie_grid);
-
-        //this.mGridView.setAdapter(this.mMovieAdapter);
-
-//        this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView parent, View view, int position, long id) {
-//                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-//                if (cursor != null) {
-//
-//                    Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
-//                    if (mTwoPane) {
-//
-//                        //load the fragment into the other container
-//                        Bundle arguments = new Bundle();
-//                        arguments.putLong(MOVIE_ID_BUNDLE, movieId);
-//                         MovieDetailFragment fragment = new MovieDetailFragment();
-//                        fragment.setArguments(arguments);
-//                        getSupportFragmentManager().beginTransaction()
-//                                .replace(R.id.movie_detail_container, fragment)
-//                                .commit();
-//
-//                    } else {
-//
-//                        Intent intent = new Intent(getParent(), MovieDetailFragment.class);
-//
-//
-//                        Bundle arguments = new Bundle();
-//                        arguments.putLong(MOVIE_ID_BUNDLE,movieId );
-//                        //store the movie
-//                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-//                        MovieDetailFragment fragment = new MovieDetailFragment();
-////                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-//                    }
-//                }
-//            }
-//        });
-
 
         if(containerView.findViewById(R.id.movie_detail_container)!= null)
         {
@@ -162,47 +109,22 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
         }
     }
 
-//    @Override
-//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-//        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
-//        //todo change the last null to be the sort order
-////        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-//
-//        String sortingType = Utility.getPreferredSortingType(this);
-//        String sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-//        String SelectionStr = null;
-//        String[] SelectionArgs = null;
-//        if(sortingType.equals(Utility.SORT_BY_RATING)) {
-//
-//            sortStr = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-//        }
-//        else if(sortingType.equals(Utility.SORT_BY_FAVORITES)) {
-//
-//            movieUri = MovieContract.FavoritesEntry.buildFavoriteMovies();
-//            sortStr = null;
-//
-//        }
-//
-//
-//
-//        return new CursorLoader(this, movieUri, MOVIE_COLUMNS, SelectionStr, SelectionArgs, sortStr);    }
-//
-//    @Override
-//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-//        mMovieAdapter.swapCursor(data);
-//
-//    }
-//
-//    @Override
-//    public void onLoaderReset(Loader<Cursor> loader) {
-//        mMovieAdapter.swapCursor(null);
-//
-//    }
 
 
-    //we want this to be the main activity that handles all of the fragments
+    @Override
+    public void onBackPressed() {
+        if(!mTwoPane) {
 
+            if(mDetailFragmentActive) {
 
+                //this is to prevent the infinite looping
+                Utility.setSelectedMovie(this, -1);
 
-
+                mDetailFragmentActive = false;
+                getSupportFragmentManager().beginTransaction().replace(R.id.movie_grid_container, new MovieFragment()).commit();
+                return;
+            }
+        }
+        super.onBackPressed();
+    }
 }

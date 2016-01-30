@@ -36,14 +36,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--<activity-->
-            <!--android:name=".MovieDetailFragment"-->
-            <!--android:label="@string/title_movie_detail"-->
-            <!--android:theme="@style/AppTheme.NoActionBar">-->
-            <!--<meta-data-->
-                <!--android:name="android.support.PARENT_ACTIVITY"-->
-                <!--android:value=".MainMovieActivity" />-->
-        <!--</activity>-->
+        <activity
+            android:name=".MovieDetailFragment"
+            android:label="@string/title_movie_detail"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainMovieActivity" />
+        </activity>
 
         <provider
             android:name=".movie.MovieProvider"

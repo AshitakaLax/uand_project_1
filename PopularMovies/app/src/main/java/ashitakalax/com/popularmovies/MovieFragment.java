@@ -48,6 +48,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
     private Activity mMainActivity;
+    private  FetchMovieTask mFetchMovieTask;
 
     private boolean mTwoPane;
 
@@ -119,17 +120,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
-        //todo pass the number of panes in as an arguement
-        this.mTwoPane = true;
-
-        if(this.mTwoPane) {
-            this.mGridView.setNumColumns(3);
-        }
-        else
-        {
-
-            this.mGridView.setNumColumns(2);
-        }
         this.mGridView.setAdapter(this.mMovieAdapter);
 
         this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -145,20 +135,6 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                     }catch (ClassCastException cce){
 
                     }
-//
-//                    if (mTwoPane) {
-//                        //load the fragment into the other container
-//                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-//                        MovieDetailFragment fragment = new MovieDetailFragment();
-//
-//                    } else {
-//                        Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
-//
-//                        //store the movie
-//                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-//                        MovieDetailFragment fragment = new MovieDetailFragment();
-//                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-//                    }
                 }
             }
         });
@@ -175,21 +151,10 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
         if(movieId != -1)
         {
-            if(this.mTwoPane)
-            {
-                //load up the other page
-                //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
-                this.getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                MovieDetailFragment fragment = new MovieDetailFragment();
-//                this.getActivity().getFragmentManager().beginTransaction()
-//                        .replace(R.id.movie_detail_container, fragment)
-//                        .commit();
-            }
-            else {
-                //we already have a selected movie load it up
-                Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
-                intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                startActivity(intent);
+            try{
+                ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
+            }catch (ClassCastException cce){
+
             }
         }
 
@@ -209,13 +174,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         Utility.setSelectedMovie(getContext(), -1);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mFetchMovieTask.cancel(false);
+    }
+
     private void updateMovieDb()
     {
         String sortingType = Utility.getPreferredSortingType(getContext());
-        FetchMovieTask fetchMovieTask = new FetchMovieTask(this.getContext());
-        fetchMovieTask.setFetchMovieCompleted(this);
+        mFetchMovieTask = new FetchMovieTask(this.getContext());
+        mFetchMovieTask.setFetchMovieCompleted(this);
 
-        fetchMovieTask.execute(sortingType);
+        mFetchMovieTask.execute(sortingType);
 
     }
 
@@ -257,7 +228,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void FetchComplete() {
-        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+
+        //this is a double check to make sure that gridview is still active.
+        if(getActivity() != null) {
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+        }
     }
 
 }
