@@ -1,5 +1,7 @@
 package ashitakalax.com.popularmovies;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -45,12 +47,27 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     };
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
+    private Activity mMainActivity;
+    private  FetchMovieTask mFetchMovieTask;
 
     private boolean mTwoPane;
 
-    public MovieFragment()
+    public interface OnMovieSelected
     {
+        public void onMovieSelected(long movieId);
+    }
 
+    public MovieFragment() {
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if(context instanceof Activity) {
+            mMainActivity = (Activity) context;
+        }
     }
 
     @Override
@@ -94,34 +111,15 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-
-        //here we want to do a json query to get the list of movies
-//        if(isNetworkAvailable()) {
-//            mNoInternetTextView.setVisibility(View.INVISIBLE);
-//            new downloadMovieList().execute(mSortTypeStr);
-//        }
-//        else
-//            mNoInternetTextView.setVisibility(View.VISIBLE);
-
         //todo before we replace the viewgroup we need to know if the user
         //is Two Pane. if so then we need to load a different container,
 
-
-
         this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+
         View rootView = inflater.inflate(R.layout.movie_grid, container, false);
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
-        this.mTwoPane = rootView.findViewById(R.id.movie_detail_container) != null;
-        if(this.mTwoPane) {
-            this.mGridView.setNumColumns(3);
-        }
-        else
-        {
-
-            this.mGridView.setNumColumns(2);
-        }
         this.mGridView.setAdapter(this.mMovieAdapter);
 
         this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -131,19 +129,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 if (cursor != null) {
 
                     Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
-                    if(mTwoPane)
-                    {
-                        //load the fragment into the other container
-                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        MovieDetailFragment fragment = new MovieDetailFragment();
 
-                    }
-                    else {
-                        Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                    try{
+                        ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
+                    }catch (ClassCastException cce){
 
-                        //store the movie
-                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        startActivity(intent);
                     }
                 }
             }
@@ -154,27 +144,17 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         //check if there is a movie already selected before
         Long movieId = Utility.getSelectedMovie(getContext());
 
         if(movieId != -1)
         {
-            if(this.mTwoPane)
-            {
-                //load up the other page
-                //arguments.putString(MovieDetailFragment.ARG_MOVIE_ID, "1");
-                this.getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                MovieDetailFragment fragment = new MovieDetailFragment();
-//                this.getActivity().getFragmentManager().beginTransaction()
-//                        .replace(R.id.movie_detail_container, fragment)
-//                        .commit();
-            }
-            else {
-                //we alread have a selected movie load it up
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                startActivity(intent);
+            try{
+                ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
+            }catch (ClassCastException cce){
+
             }
         }
 
@@ -194,13 +174,19 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         Utility.setSelectedMovie(getContext(), -1);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mFetchMovieTask.cancel(false);
+    }
+
     private void updateMovieDb()
     {
         String sortingType = Utility.getPreferredSortingType(getContext());
-        FetchMovieTask fetchMovieTask = new FetchMovieTask(this.getContext());
-        fetchMovieTask.setFetchMovieCompleted(this);
+        mFetchMovieTask = new FetchMovieTask(this.getContext());
+        mFetchMovieTask.setFetchMovieCompleted(this);
 
-        fetchMovieTask.execute(sortingType);
+        mFetchMovieTask.execute(sortingType);
 
     }
 
@@ -242,6 +228,11 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void FetchComplete() {
-        getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+
+        //this is a double check to make sure that gridview is still active.
+        if(getActivity() != null) {
+            getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
+        }
     }
+
 }

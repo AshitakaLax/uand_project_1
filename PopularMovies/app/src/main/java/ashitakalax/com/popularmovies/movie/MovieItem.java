@@ -88,71 +88,6 @@ public class MovieItem implements Parcelable{
         }
     };
 
-    public int getId() {
-        return mId;
-    }
-
-    public void setId(int mId) {
-        this.mId = mId;
-    }
-
-    public String getImageUrl() {
-        return mImageUrl;
-    }
-
-    public void setImageUrl(String mImageUrl) {
-        this.mImageUrl = mImageUrl;
-    }
-
-    public String getOriginalTitle() {
-        return mOriginalTitle;
-    }
-
-    public void setOriginalTitle(String mOriginalTitle) {
-        this.mOriginalTitle = mOriginalTitle;
-    }
-
-    public String getPlotSynopsis() {
-        return mPlotSynopsis;
-    }
-
-    public void setPlotSynopsis(String mPlotSynopsis) {
-        this.mPlotSynopsis = mPlotSynopsis;
-    }
-
-    public double getUserRating() {
-        return mUserRating;
-    }
-
-    public void setUserRating(double mUserRating) {
-        this.mUserRating = mUserRating;
-    }
-
-    public String getReleaseDate() {
-        return mReleaseDate;
-    }
-
-    public void setReleaseDate(String mReleaseDate) {
-        this.mReleaseDate = mReleaseDate;
-    }
-
-    public ArrayList<TrailerItem> getTrailers()
-    {
-        return  this.mTrailers;
-    }
-
-    public void setTrailers(ArrayList<TrailerItem> trailers) {
-        this.mTrailers = trailers;
-    }
-
-    public ArrayList<ReviewItem> getReviews() {
-        return mReviews;
-    }
-
-    public void setReviews(ArrayList<ReviewItem> reviews) {
-        this.mReviews = reviews;
-    }
-
     @Override
         public String toString() {
             return this.mPlotSynopsis;
@@ -177,7 +112,7 @@ public class MovieItem implements Parcelable{
 
     }
 
-    public static List<MovieItem> getMoviesFromJson(Context context, String movieJsonStr) throws JSONException
+    public static List<Integer> getMoviesFromJson(Context context, String movieJsonStr) throws JSONException
     {
         // list of
         final String MOVIE_LIST = "results";
@@ -193,7 +128,7 @@ public class MovieItem implements Parcelable{
         JSONObject movieQueryJson = new JSONObject(movieJsonStr);
         JSONArray movieArray = movieQueryJson.getJSONArray(MOVIE_LIST);
 
-        List<MovieItem> movieItemList = new ArrayList<MovieItem>();
+        List<Integer> movieItemList = new ArrayList<Integer>();
 
         //it would be best to make the reviews and the trailers nullable
         //then to populate them after
@@ -202,15 +137,7 @@ public class MovieItem implements Parcelable{
 
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject movieJson = movieArray.getJSONObject(i);
-            MovieItem item = new MovieItem();
-
-            item.setId(movieJson.getInt(MOVIE_ID));
-            item.setPlotSynopsis(movieJson.getString(MOVIE_OVERVIEW));
-            item.setImageUrl(movieJson.getString(MOVIE_POSTER_URL));
-            item.setOriginalTitle(movieJson.getString(MOVIE_TITLE));
-            item.setUserRating(movieJson.getDouble(MOVIE_RATING));
-            item.setReleaseDate(movieJson.getString(MOVIE_RELEASE_DATE));
-
+           // MovieItem item = new MovieItem();
             //here we don't want to add it to the database yet, we want to wait till we get both the reviews
             //and the trailers for the movie.
             //but we do want to do a check here to see if we have the reviews and the trailers
@@ -218,12 +145,14 @@ public class MovieItem implements Parcelable{
 
             ContentValues movieValues = new ContentValues();
 
-            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, item.getId());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, item.getOriginalTitle());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, item.getPlotSynopsis());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, item.getUserRating());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, item.getReleaseDate());
-            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, item.getImageUrl());
+            movieItemList.add(movieJson.getInt(MOVIE_ID));
+
+            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movieItemList.get(movieItemList.size()-1));//item.getId());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_TITLE, movieJson.getString(MOVIE_TITLE));//item.getOriginalTitle());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movieJson.getString(MOVIE_OVERVIEW));//item.getPlotSynopsis());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, movieJson.getDouble(MOVIE_RATING));//item.getUserRating());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieJson.getString(MOVIE_RELEASE_DATE));//item.getReleaseDate());
+            movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER_URL, movieJson.getString(MOVIE_POSTER_URL));//item.getImageUrl());
             movieValues.put(MovieContract.MovieEntry.COLUMN_IS_FAVORITE, false);
             movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, movieJson.getString(MOVIE_POPULARITY));
 
@@ -236,7 +165,7 @@ public class MovieItem implements Parcelable{
 
 //            item.setReviews(MovieItem.queryReviewList(item.getId()));
 //            MovieItem.queryMovieDetails(item);
-            movieItemList.add(item);
+           // movieItemList.add(item);
         }
         int insertResult = 0;
         if ( movieVector.size() > 0 ) {
@@ -249,54 +178,19 @@ public class MovieItem implements Parcelable{
 
     }
 
-    public static MovieItem getMovieItemFromJson(String movieJsonStr) throws JSONException
-    {
-        // list of
-        final String MOVIE_LIST = "results";
-        final String MOVIE_ID = "id";
-        final String MOVIE_TITLE = "original_title";
-        final String MOVIE_OVERVIEW = "overview";
-        final String MOVIE_RATING = "vote_average";
-        final String MOVIE_RELEASE_DATE = "release_date";
-        final String MOVIE_POSTER_URL = "poster_path";
 
-        JSONObject movieQueryJson = new JSONObject(movieJsonStr);
-        //JSONArray movieArray = movieQueryJson.getJSONArray(MOVIE_LIST);
-
-//            JSONObject movieJson = movieArray.getJSONObject(i);
-            MovieItem item = new MovieItem();
-
-            item.setId(movieQueryJson.getInt(MOVIE_ID));
-            item.setPlotSynopsis(movieQueryJson.getString(MOVIE_OVERVIEW));
-            item.setImageUrl(movieQueryJson.getString(MOVIE_POSTER_URL));
-            item.setOriginalTitle(movieQueryJson.getString(MOVIE_TITLE));
-            item.setUserRating(movieQueryJson.getDouble(MOVIE_RATING));
-            item.setReleaseDate(movieQueryJson.getString(MOVIE_RELEASE_DATE));
-            item.setOriginalTitle(movieQueryJson.getString(MOVIE_TITLE));
-            //this is already running on the background thread we technically skip on another
-            //background task from running
-
-            //foreach of these fetch the trailers and reviews for each movie
-
-
-        return item;
-
-    }
-
-    public static MovieItem queryMovieDetails(Context context, MovieItem movie)
+    public static MovieItem queryMovieDetails(Context context, int movieId)
     {
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
         String movieDetailJsonStr = null;
-        ArrayList<TrailerItem> trailerItemList = null;
-        MovieItem resultMovie = new MovieItem();
 
         //we will want 2 vectors one for trailers and one for reviews
 
         try
         {
 
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movie.getId() + "?";
+            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "?";
             final String APPID_PARAM = "api_key";
             final String MOVIE_DATA_PARAM = "append_to_response";
             final String MOVIE_DATA_VALUE = "videos,reviews";
@@ -354,161 +248,14 @@ public class MovieItem implements Parcelable{
         }
         //parse the json string into a movieItem list
         try {
-            resultMovie = getMovieItemFromJson(movieDetailJsonStr);
-            String resultStr = TrailerItem.getTrailersFromJson(context, movieDetailJsonStr,resultMovie.getId());
-            resultStr = ReviewItem.getReviewsFromJson(context, movieDetailJsonStr, resultMovie.getId());
-            //resultMovie.setTrailers(TrailerItem.getTrailersFromJson(movieDetailJsonStr));
 
-//            resultMovie.setReviews(ReviewItem.getReviewsFromJson(movieDetailJsonStr));
+            String resultStr = TrailerItem.getTrailersFromJson(context, movieDetailJsonStr, movieId);
+            resultStr = ReviewItem.getReviewsFromJson(context, movieDetailJsonStr, movieId);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return resultMovie;
-    }
-
-    private static ArrayList<TrailerItem> queryTrailerList(int movieId)
-    {
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String trailerJsonStr = null;
-        ArrayList<TrailerItem> trailerItemList = null;
-        try
-        {
-
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "?";
-            final String APPID_PARAM = "api_key";
-            final String MOVIE_DATA_PARAM = "append_to_response";
-            final String MOVIE_DATA_VALUE = "videos,reviews";
-
-
-            Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
-                    .appendQueryParameter(MOVIE_DATA_PARAM, MOVIE_DATA_VALUE)
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-            urlConnection = (HttpURLConnection)url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line);
-                buffer.append("\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            trailerJsonStr = buffer.toString();
-
-        }
-        catch (IOException ioex)
-        {
-
-            Log.e("PlaceholderFragment", "Error ", ioex);
-        }finally{
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e("PlaceholderFragment", "Error closing stream", e);
-                }
-            }
-        }
-        //parse the json string into a movieItem list
-//        try {
-//            trailerItemList = TrailerItem.getTrailersFromJson( trailerJsonStr);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-        return null;//trailerItemList;
-    }
-
-    private static ArrayList<ReviewItem> queryReviewList(int movieId) {
-
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String reviewJsonStr = null;
-        ArrayList<ReviewItem> reviewItemList = null;
-        try
-        {
-
-            final String MOVIE_DB_BASE_URL ="http://api.themoviedb.org/3/movie/" + movieId + "/reviews?";
-            final String APPID_PARAM = "api_key";
-
-
-            Uri builtUri = Uri.parse(MOVIE_DB_BASE_URL).buildUpon()
-                    .appendQueryParameter(APPID_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY)//.OPEN_WEATHER_MAP_API_KEY)
-                    .build();
-
-            URL url = new URL(builtUri.toString());
-            urlConnection = (HttpURLConnection)url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
-
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line);
-                buffer.append("\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            reviewJsonStr = buffer.toString();
-
-        }
-        catch (IOException ioex)
-        {
-
-            Log.e("PlaceholderFragment", "Error ", ioex);
-        }finally{
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e("PlaceholderFragment", "Error closing stream", e);
-                }
-            }
-        }
-        //parse the json string into a movieItem list
-        try {
-            reviewItemList = ReviewItem.getReviewsFromJson(reviewJsonStr);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return reviewItemList;
+        return null;
     }
 
 }

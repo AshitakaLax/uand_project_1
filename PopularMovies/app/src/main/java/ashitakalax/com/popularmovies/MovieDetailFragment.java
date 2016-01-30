@@ -1,7 +1,6 @@
 package ashitakalax.com.popularmovies;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,11 +21,6 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
 
 import ashitakalax.com.popularmovies.movie.MovieContract;
 import ashitakalax.com.popularmovies.movie.MovieItem;
@@ -34,8 +28,8 @@ import ashitakalax.com.popularmovies.movie.MovieItem;
 
 /**
  * A fragment representing a single movie detail screen.
- * This fragment is either contained in a {@link MovieGridActivity}
- * in two-pane mode (on tablets) or a {@link MovieDetailActivity}
+ * This fragment is either contained in a {@link MainMovieActivity}
+ * in two-pane mode (on tablets) or a {@link MovieDetailFragment}
  * on handsets.
  */
 public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
@@ -44,6 +38,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
      * represents.
      */
     public static final String ARG_MOVIE_BUNDLE_ID = "SelectedMovieItem";
+    public static final String MOVIE_ID_BUNDLE = "movie_id";
     static final int COL_ID = 0;
 
     //todo add the sharing later
@@ -112,10 +107,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private MovieItem mItem;
     private Button favoriteButton;
     private ListView mTrailerListView;
-    private ListView mReviewListView;
     private LinearLayout mReviewLayout;
     private TrailerAdapter mTrailerAdapter;
-    private ReviewAdapter mReviewAdapter;
     private ArrayList<String> reviewIds;
 
     /**
@@ -134,6 +127,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getArguments().containsKey(MOVIE_ID_BUNDLE))
+        {
+            this.mMovieId = getArguments().getLong(MOVIE_ID_BUNDLE) + "";
+        }
         return;
     }
 
@@ -176,16 +174,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-//        getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-//        getLoaderManager().initLoader(REVIEW_LOADER, null, this);
-//        getLoaderManager().initLoader(TRAILER_LOADER, null, this);
-
-        super.onActivityCreated(savedInstanceState);
-
-
-    }
 
     private void updateFavoriteButtonText(boolean isFavorite)
     {
@@ -252,18 +240,15 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         Log.v(LOG_TAG, "In OnCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
-        }
 
+        long tempMovieId = Long.parseLong(mMovieId);
 
-        Uri movieUri = intent.getData();
+        Uri movieUri = MovieContract.MovieEntry.buildMovieUri(tempMovieId);
         if(movieUri == null)
         {
             return null;
         }
-        this.mMovieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
+        //we already have the mMovieId at this point
         //store the movie
         Utility.setSelectedMovie(getContext(), Long.parseLong(mMovieId));
 
@@ -368,23 +353,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             String reviewStr = data.getString(MovieDetailFragment.REVIEW_COL_CONTENT);//todo update index
             reviewTextView.append( author +": " + reviewStr + "\n\n");
         }while(data.moveToNext());
-        return;
-//        if (!data.moveToFirst()) {
-//            return;
-//        }
-//
-//        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
-//                    int i = 0;
-//        do {
-//            View  custom = LayoutInflater.from(getContext()).inflate(R.layout.review_detail,reviewLayout, false);
-//            TextView reviewTextView = (TextView) custom.findViewById(R.id.reviewLabelTextView);
-//
-//            String reviewStr = data.getString(0);//todo update index
-//            reviewTextView.setText("Review: " + reviewStr );
-////            custom.setTag(review);
-//            reviewLayout.addView(custom);
-//        }while(data.moveToNext());
 
+        return;
     }
 
     private void loadMovieDetail(Cursor data) {
@@ -400,17 +370,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         double movieRating = data.getDouble(COL_MOVIE_VOTE);
 
-        int rowId = data.getInt(COL_ID);
-
         //get the data from the cursor
         TextView titleTextView = (TextView) getView().findViewById(R.id.titleTextView);
         TextView releaseDateTextView = (TextView) getView().findViewById(R.id.releaseDateTextView);
-        TextView movieTimeLengthTextView = (TextView) getView().findViewById(R.id.movieTimeLengthTextView);
         TextView movieRatingTextView = (TextView) getView().findViewById(R.id.movieRatingTextView);
         TextView movieOverviewTextView = (TextView) getView().findViewById(R.id.movieOverviewTextView);
         ImageView posterImageView = (ImageView) getView().findViewById(R.id.moviePosterImageView);
-        LinearLayout trailerLayout = (LinearLayout) getView().findViewById(R.id.TrailersLayout);
-        LinearLayout reviewLayout = (LinearLayout) getView().findViewById(R.id.reviewsLayout);
 
         if (titleTextView != null) {
             titleTextView.setText(movieTitle);

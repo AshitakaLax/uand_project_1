@@ -6,7 +6,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context=".MovieDetailActivity">
+    tools:context=".MovieDetailFragment">
 
 
     <Button

@@ -25,8 +25,26 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/container">
+        <FrameLayout
+            android:id="@+id/movie_grid_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2">
 
-        <!--<include layout="@layout/movie_grid" />-->
+            <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/movie_grid"
+                android:numColumns="2"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/movie_item"
+                android:clickable="true"
+                android:stretchMode="columnWidth">
+
+            </GridView>
+
+        </FrameLayout>
 
     </FrameLayout>
 

@@ -37,12 +37,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MovieDetailActivity"
+            android:name=".MovieDetailFragment"
             android:label="@string/title_movie_detail"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MovieGridActivity" />
+                android:value=".MainMovieActivity" />
         </activity>
 
         <provider
