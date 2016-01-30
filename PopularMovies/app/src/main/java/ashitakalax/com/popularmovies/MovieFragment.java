@@ -1,5 +1,7 @@
 package ashitakalax.com.popularmovies;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -45,12 +47,26 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     };
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
+    private Activity mMainActivity;
 
     private boolean mTwoPane;
 
-    public MovieFragment()
+    public interface OnMovieSelected
     {
+        public void onMovieSelected(long movieId);
+    }
 
+    public MovieFragment() {
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if(context instanceof Activity) {
+            mMainActivity = (Activity) context;
+        }
     }
 
     @Override
@@ -97,14 +113,15 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         //todo before we replace the viewgroup we need to know if the user
         //is Two Pane. if so then we need to load a different container,
 
-
-
         this.mMovieAdapter = new MovieAdapter(getActivity(), null, 0);
+
         View rootView = inflater.inflate(R.layout.movie_grid, container, false);
 
         this.mGridView = (GridView)rootView.findViewById(R.id.movie_grid);
 
-        this.mTwoPane = rootView.findViewById(R.id.movie_detail_container) != null;
+        //todo pass the number of panes in as an arguement
+        this.mTwoPane = true;
+
         if(this.mTwoPane) {
             this.mGridView.setNumColumns(3);
         }
@@ -122,21 +139,26 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
                 if (cursor != null) {
 
                     Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
-                    if(mTwoPane)
-                    {
-                        //load the fragment into the other container
-                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        MovieDetailFragment fragment = new MovieDetailFragment();
+
+                    try{
+                        ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
+                    }catch (ClassCastException cce){
 
                     }
-                    else {
-                        Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
-
-                        //store the movie
-                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        MovieDetailFragment fragment = new MovieDetailFragment();
-                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-                    }
+//
+//                    if (mTwoPane) {
+//                        //load the fragment into the other container
+//                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+//                        MovieDetailFragment fragment = new MovieDetailFragment();
+//
+//                    } else {
+//                        Intent intent = new Intent(getActivity(), MovieDetailFragment.class);
+//
+//                        //store the movie
+//                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+//                        MovieDetailFragment fragment = new MovieDetailFragment();
+//                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+//                    }
                 }
             }
         });
@@ -146,6 +168,7 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
         getLoaderManager().initLoader(MOVIE_LOADER, null, this);
         //check if there is a movie already selected before
         Long movieId = Utility.getSelectedMovie(getContext());
@@ -236,4 +259,5 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
     public void FetchComplete() {
         getLoaderManager().restartLoader(MOVIE_LOADER, null, this);
     }
+
 }

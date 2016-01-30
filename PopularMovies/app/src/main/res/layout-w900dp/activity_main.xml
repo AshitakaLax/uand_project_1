@@ -21,25 +21,48 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="0dp"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="4"
-        android:id="@+id/container">
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:baselineAligned="false"
+        android:divider="?android:attr/dividerHorizontal"
+        android:orientation="horizontal"
+        android:showDividers="middle"
+        tools:context="ashitakalax.com.popularmovies.MainMovieActivity">
+        <!--tools:context="com.example.balling.myapplication.ItemListActivity">-->
 
-        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/movie_grid"
-            android:numColumns="3"
+
+    <!--<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="4"-->
+        <!--android:id="@+id/container">-->
+
+        <FrameLayout
+            android:id="@+id/movie_grid_container"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            tools:context=".movieGridActivity"
-            android:gravity="center"
-            tools:listitem="@layout/movie_item"
-            android:layout_weight="2"
-            android:stretchMode="columnWidth">
+            android:layout_height="match_parent"
+            android:layout_weight="2">
 
-        </GridView>
+            <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/movie_grid"
+                android:numColumns="3"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                tools:context=".movieGridActivity"
+                android:gravity="center"
+                tools:listitem="@layout/movie_item"
+                android:layout_weight="2"
+                android:stretchMode="columnWidth">
 
+            </GridView>
+
+        </FrameLayout>
         <!--<include layout="@layout/movie_grid" />-->
 
         <FrameLayout
@@ -51,6 +74,7 @@
             <!--<include layout="@layout/movie_detail" />-->
         </FrameLayout>
 
-    </FrameLayout>
+    </LinearLayout>
+    <!--</FrameLayout>-->
 
 </LinearLayout>

@@ -39,6 +39,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
      * represents.
      */
     public static final String ARG_MOVIE_BUNDLE_ID = "SelectedMovieItem";
+    public static final String MOVIE_ID_BUNDLE = "movie_id";
     static final int COL_ID = 0;
 
     //todo add the sharing later
@@ -129,6 +130,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(getArguments().containsKey(MOVIE_ID_BUNDLE))
+        {
+            this.mMovieId = getArguments().getLong(MOVIE_ID_BUNDLE) + "";
+        }
         return;
     }
 
@@ -247,18 +253,15 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
         Log.v(LOG_TAG, "In OnCreateLoader");
-        Intent intent = getActivity().getIntent();
-        if (intent == null) {
-            return null;
-        }
 
+        long tempMovieId = Long.parseLong(mMovieId);
 
-        Uri movieUri = intent.getData();
+        Uri movieUri = MovieContract.MovieEntry.buildMovieUri(tempMovieId);
         if(movieUri == null)
         {
             return null;
         }
-        this.mMovieId = MovieContract.MovieEntry.getMovieIdFromUri(movieUri);
+        //we already have the mMovieId at this point
         //store the movie
         Utility.setSelectedMovie(getContext(), Long.parseLong(mMovieId));
 

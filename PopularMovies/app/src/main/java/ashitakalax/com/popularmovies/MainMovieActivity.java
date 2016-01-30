@@ -21,7 +21,37 @@ import ashitakalax.com.popularmovies.movie.MovieContract;
 /**
  * Created by Levi Balling on 1/2/2016.
  */
-public class MainMovieActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MainMovieActivity extends AppCompatActivity implements MovieFragment.OnMovieSelected{
+
+    @Override
+    public void onMovieSelected(long movieId)
+    {
+        if (mTwoPane)
+        {
+
+            //load the fragment into the other container
+            Bundle arguments = new Bundle();
+            arguments.putLong(MOVIE_ID_BUNDLE, movieId);
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(arguments);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment)
+                    .commit();
+
+        } else {
+
+            Intent intent = new Intent(getParent(), MovieDetailFragment.class);
+
+
+            Bundle arguments = new Bundle();
+            arguments.putLong(MOVIE_ID_BUNDLE,movieId );
+            //store the movie
+            intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+            MovieDetailFragment fragment = new MovieDetailFragment();
+//                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+        }
+    }
+
 
     private final String LOG_TAG = MainMovieActivity.class.getSimpleName();
     static final int COL_ID = 0;
@@ -42,6 +72,7 @@ public class MainMovieActivity extends AppCompatActivity implements LoaderManage
     };
 
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    private static final String MOVIE_ID_BUNDLE = "movie_id";
     private MovieAdapter mMovieAdapter;
     private GridView mGridView;
     private boolean mTwoPane;
@@ -64,37 +95,45 @@ public class MainMovieActivity extends AppCompatActivity implements LoaderManage
 //by default the movieFragment should be setup on launch
 
         //load the movie adapter in it
-        this.mMovieAdapter = new MovieAdapter(this, null, 0);
+        //this.mMovieAdapter = new MovieAdapter(this, null, 0);
 
-        this.mGridView = (GridView)findViewById(R.id.movie_grid);
+//        this.mGridView = (GridView)findViewById(R.id.movie_grid);
 
-        this.mGridView.setAdapter(this.mMovieAdapter);
+        //this.mGridView.setAdapter(this.mMovieAdapter);
 
-        this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView parent, View view, int position, long id) {
-                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                if (cursor != null) {
-
-                    Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
-                    if (mTwoPane) {
-                        //load the fragment into the other container
-//                        getActivity().getIntent().setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        MovieDetailFragment fragment = new MovieDetailFragment();
-
-                    } else {
-
-                        Intent intent = new Intent(getParent(), MovieDetailFragment.class);
-
-
-                        //store the movie
-                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
-                        MovieDetailFragment fragment = new MovieDetailFragment();
-//                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-                    }
-                }
-            }
-        });
+//        this.mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView parent, View view, int position, long id) {
+//                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+//                if (cursor != null) {
+//
+//                    Long movieId = (long) cursor.getInt(COL_MOVIE_ID);
+//                    if (mTwoPane) {
+//
+//                        //load the fragment into the other container
+//                        Bundle arguments = new Bundle();
+//                        arguments.putLong(MOVIE_ID_BUNDLE, movieId);
+//                         MovieDetailFragment fragment = new MovieDetailFragment();
+//                        fragment.setArguments(arguments);
+//                        getSupportFragmentManager().beginTransaction()
+//                                .replace(R.id.movie_detail_container, fragment)
+//                                .commit();
+//
+//                    } else {
+//
+//                        Intent intent = new Intent(getParent(), MovieDetailFragment.class);
+//
+//
+//                        Bundle arguments = new Bundle();
+//                        arguments.putLong(MOVIE_ID_BUNDLE,movieId );
+//                        //store the movie
+//                        intent.setData(MovieContract.MovieEntry.buildMovieUri(movieId));
+//                        MovieDetailFragment fragment = new MovieDetailFragment();
+////                        getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+//                    }
+//                }
+//            }
+//        });
 
 
         if(containerView.findViewById(R.id.movie_detail_container)!= null)
@@ -106,57 +145,59 @@ public class MainMovieActivity extends AppCompatActivity implements LoaderManage
                 long temp = Utility.getSelectedMovie(this);
                 if(temp != -1) {
 
-                    //load the fragment into the other container
-                    this.getIntent().setData(MovieContract.MovieEntry.buildMovieUri(temp));
+                    Bundle arguments = new Bundle();
+                    arguments.putLong(MOVIE_ID_BUNDLE, temp);
                     MovieDetailFragment fragment = new MovieDetailFragment();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-                    return;
+                    fragment.setArguments(arguments);
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.movie_detail_container, fragment)
+                            .commit();
                 }
             }
         }
 
         if (savedInstanceState == null) {
             //don't load into container
-            getSupportFragmentManager().beginTransaction().replace(R.id.container, new MovieFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.movie_grid_container, new MovieFragment()).commit();
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
-        //todo change the last null to be the sort order
-//        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
-
-        String sortingType = Utility.getPreferredSortingType(this);
-        String sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
-        String SelectionStr = null;
-        String[] SelectionArgs = null;
-        if(sortingType.equals(Utility.SORT_BY_RATING)) {
-
-            sortStr = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
-        }
-        else if(sortingType.equals(Utility.SORT_BY_FAVORITES)) {
-
-            movieUri = MovieContract.FavoritesEntry.buildFavoriteMovies();
-            sortStr = null;
-
-        }
-
-
-
-        return new CursorLoader(this, movieUri, MOVIE_COLUMNS, SelectionStr, SelectionArgs, sortStr);    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mMovieAdapter.swapCursor(data);
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        mMovieAdapter.swapCursor(null);
-
-    }
+//    @Override
+//    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+//        Uri movieUri = MovieContract.MovieEntry.CONTENT_URI;
+//        //todo change the last null to be the sort order
+////        Cursor cur = getActivity().getContentResolver().query(movieUri, null, null, null, null);
+//
+//        String sortingType = Utility.getPreferredSortingType(this);
+//        String sortStr = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
+//        String SelectionStr = null;
+//        String[] SelectionArgs = null;
+//        if(sortingType.equals(Utility.SORT_BY_RATING)) {
+//
+//            sortStr = MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE + " DESC";
+//        }
+//        else if(sortingType.equals(Utility.SORT_BY_FAVORITES)) {
+//
+//            movieUri = MovieContract.FavoritesEntry.buildFavoriteMovies();
+//            sortStr = null;
+//
+//        }
+//
+//
+//
+//        return new CursorLoader(this, movieUri, MOVIE_COLUMNS, SelectionStr, SelectionArgs, sortStr);    }
+//
+//    @Override
+//    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+//        mMovieAdapter.swapCursor(data);
+//
+//    }
+//
+//    @Override
+//    public void onLoaderReset(Loader<Cursor> loader) {
+//        mMovieAdapter.swapCursor(null);
+//
+//    }
 
 
     //we want this to be the main activity that handles all of the fragments
