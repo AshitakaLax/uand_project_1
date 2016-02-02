@@ -16,16 +16,18 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <!--<activity-->
-            <!--android:name=".MovieGridActivity"-->
-            <!--android:label="@string/app_name"-->
-            <!--android:theme="@style/AppTheme.NoActionBar">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        <!--</activity>-->
+        <!-- <activity -->
+        <!-- android:name=".MovieGridActivity" -->
+        <!-- android:label="@string/app_name" -->
+        <!-- android:theme="@style/AppTheme.NoActionBar"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+        <!-- </intent-filter> -->
+        <!-- </activity> -->
         <activity
             android:name=".MainMovieActivity"
             android:label="@string/app_name"
@@ -49,7 +51,17 @@
             android:name=".movie.MovieProvider"
             android:authorities="ashitakalax.com.popularmovies"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
+
+        <activity
+            android:name=".MovieDetailActivity"
+            android:label="@string/title_activity_movie_detail"
+            android:parentActivityName=".MainMovieActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ashitakalax.com.popularmovies.MainMovieActivity" />
+        </activity>
     </application>
 
 </manifest>

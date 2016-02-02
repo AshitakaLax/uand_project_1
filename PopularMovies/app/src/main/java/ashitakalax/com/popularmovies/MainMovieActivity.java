@@ -1,5 +1,6 @@
 package ashitakalax.com.popularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -32,14 +33,20 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
                     .commit();
 
         } else {
-            mDetailFragmentActive = true;
-            Bundle arguments = new Bundle();
-            arguments.putLong(MOVIE_ID_BUNDLE, movieId);
-            MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.movie_grid_container, fragment)
-                    .commit();
+
+            Intent intent = new Intent(this, MovieDetailActivity.class);
+            intent.putExtra(MOVIE_ID_BUNDLE, movieId);
+            startActivity(intent);
+
+//
+//            mDetailFragmentActive = true;
+//            Bundle arguments = new Bundle();
+//            arguments.putLong(MOVIE_ID_BUNDLE, movieId);
+//            MovieDetailFragment fragment = new MovieDetailFragment();
+//            fragment.setArguments(arguments);
+//            getSupportFragmentManager().beginTransaction()
+//                    .replace(R.id.movie_grid_container, fragment)
+//                    .commit();
         }
     }
 
@@ -87,8 +94,7 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
         {
             mTwoPane = true;
             //two pane
-            if (savedInstanceState == null)
-            {
+
                 long temp = Utility.getSelectedMovie(this);
                 if(temp != -1) {
 
@@ -100,7 +106,6 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
                             .replace(R.id.movie_detail_container, fragment)
                             .commit();
                 }
-            }
         }
 
         if (savedInstanceState == null) {

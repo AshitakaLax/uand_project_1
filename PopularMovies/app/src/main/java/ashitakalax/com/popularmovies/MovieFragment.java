@@ -149,14 +149,14 @@ public class MovieFragment extends Fragment implements LoaderManager.LoaderCallb
         //check if there is a movie already selected before
         Long movieId = Utility.getSelectedMovie(getContext());
 
-        if(movieId != -1)
-        {
-            try{
-                ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
-            }catch (ClassCastException cce){
-
-            }
-        }
+//        if(movieId != -1)
+//        {
+//            try{
+//                ((OnMovieSelected) mMainActivity).onMovieSelected(movieId);
+//            }catch (ClassCastException cce){
+//
+//            }
+//        }
 
         super.onActivityCreated(savedInstanceState);
     }
