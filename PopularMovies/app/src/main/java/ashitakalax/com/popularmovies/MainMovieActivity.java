@@ -3,12 +3,15 @@ package ashitakalax.com.popularmovies;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import ashitakalax.com.popularmovies.movie.MovieContract;
 
@@ -87,8 +90,21 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
         toolbar.setTitle(getTitle());
         mTwoPane = false;
         mDetailFragmentActive = false;
+        TextView internetConnectivityTextView = (TextView)findViewById(R.id.noInternetTextView);
 
         View containerView = findViewById(R.id.container);
+
+        if(!isNetworkAvailable())
+        {
+            //update display to notify user that there is no internet available
+            internetConnectivityTextView.setVisibility(View.VISIBLE);
+            return;
+        }
+        else
+        {
+            internetConnectivityTextView.setVisibility(View.GONE);
+
+        }
 
         if(containerView.findViewById(R.id.movie_detail_container)!= null)
         {
@@ -114,7 +130,19 @@ public class MainMovieActivity extends AppCompatActivity implements MovieFragmen
         }
     }
 
-
+    /**
+     * This check is to optimize whether we should even attempt to request the json data
+     * Note: this code snippet was taken from
+     * http://stackoverflow.com/questions/4238921/detect-whether-there-is-an-internet-connection-available-on-android
+     * answer by Alexandre Jasmin
+     * @return true if network connection is setup(not direct internet connection)
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     @Override
     public void onBackPressed() {
