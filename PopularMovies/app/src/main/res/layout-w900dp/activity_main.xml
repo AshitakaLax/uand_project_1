@@ -21,6 +21,15 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/no_internet_message"
+        android:id="@+id/noInternetTextView"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
